@@ -6,7 +6,6 @@ import { withRouter } from "react-router-dom";
 import HeaderMobile from "./header/HeaderMobile";
 import Footer from "./footer/Footer";
 import ScrollTop from "../../app/partials/layout/ScrollTop";
-import StickyToolbar from "../../app/partials/layout/StickyToolbar";
 import HTMLClassService from "./HTMLClassService";
 import LayoutConfig from "./LayoutConfig";
 import MenuConfig from "./MenuConfig";
@@ -110,7 +109,6 @@ function Layout({
       </div>
       <ScrollTop />
       <QuickPanel />
-      <StickyToolbar />
     </LayoutInitializer>
   ) : (
     <div className="kt-grid kt-grid--ver kt-grid--root kt-page">
