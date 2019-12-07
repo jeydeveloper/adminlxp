@@ -1,13 +1,19 @@
 import axios from "axios";
 
-export const LOGIN_URL = "api/auth/login";
-export const REGISTER_URL = "api/auth/register";
-export const REQUEST_PASSWORD_URL = "api/auth/forgot-password";
+const { REACT_APP_API_URL } = process.env;
 
-export const ME_URL = "api/me";
+export const LOGIN_URL = `${REACT_APP_API_URL}/auth/login`;
+export const REGISTER_URL = `${REACT_APP_API_URL}/auth/register`;
+export const REQUEST_PASSWORD_URL = `${REACT_APP_API_URL}/auth/forgot-password`;
+
+export const ME_URL = `${REACT_APP_API_URL}/auth/current-from-token`;
 
 export function login(email, password) {
-  return axios.post(LOGIN_URL, { email, password });
+	let payload = {
+		"email":email,
+		"password":password
+	};
+  return axios.post(LOGIN_URL, payload);
 }
 
 export function register(email, fullname, username, password) {
