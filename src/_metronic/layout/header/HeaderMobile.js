@@ -14,7 +14,8 @@ class HeaderMobile extends React.Component {
 
   render() {
     const logoStyleSmall = {
-      width: "40px"
+      width: "40px",
+      height: "40px"
     };
     const { asideDisplay, htmlClassService } = this.props;
     const headerMobileCssClasses = htmlClassService.classes.header_mobile.join(

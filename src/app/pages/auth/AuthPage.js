@@ -9,7 +9,8 @@ import "../../../_metronic/_assets/sass/pages/login/login-1.scss";
 
 export default function AuthPage() {
   const logoStyle = {
-    width: "80px"
+    width: "80px",
+    height: "80px"
   };
 
   return (

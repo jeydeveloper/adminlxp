@@ -11,10 +11,12 @@ import { toAbsoluteUrl } from "../../utils/utils";
 class Brand extends React.Component {
   render() {
     const logoStyle = {
-      width: "60px"
+      width: "60px",
+      height: "60px"
     };
     const logoStyleSmall = {
-      width: "40px"
+      width: "40px",
+      height: "40px"
     };
     const { brandClasses } = this.props;
     return (

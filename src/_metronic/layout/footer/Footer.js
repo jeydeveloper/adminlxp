@@ -11,7 +11,8 @@ import * as builder from "../../ducks/builder";
 class Footer extends React.Component {
   render() {
     const logoStyleSmall = {
-      width: "40px"
+      width: "40px",
+      height: "40px"
     };
     const today = new Date().getFullYear();
     const { footerSelfLayoutIsExtended, footerClasses, footerContainerClasses } = this.props;

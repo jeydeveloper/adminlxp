@@ -5,7 +5,8 @@ import { toAbsoluteUrl } from "../../../_metronic";
 class SplashScreen extends React.Component {
   render() {
     const logoStyle = {
-      width: "80px"
+      width: "80px",
+      height: "80px"
     };
 
     return (
