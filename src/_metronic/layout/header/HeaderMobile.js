@@ -13,6 +13,9 @@ class HeaderMobile extends React.Component {
   }
 
   render() {
+    const logoStyleSmall = {
+      width: "40px"
+    };
     const { asideDisplay, htmlClassService } = this.props;
     const headerMobileCssClasses = htmlClassService.classes.header_mobile.join(
       " "
@@ -25,7 +28,7 @@ class HeaderMobile extends React.Component {
       >
         <div className="kt-header-mobile__logo">
           <Link to="/">
-            <img alt="logo" src={toAbsoluteUrl("/media/logos/logo-2-sm.png")} />
+            <img alt="logo" src={toAbsoluteUrl("/media/logos/logo-netpolitan-small.png")} style={logoStyleSmall} />
           </Link>
         </div>
         <div className="kt-header-mobile__toolbar">

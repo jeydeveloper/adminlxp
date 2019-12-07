@@ -10,6 +10,9 @@ import * as builder from "../../ducks/builder";
 
 class Footer extends React.Component {
   render() {
+    const logoStyleSmall = {
+      width: "40px"
+    };
     const today = new Date().getFullYear();
     const { footerSelfLayoutIsExtended, footerClasses, footerContainerClasses } = this.props;
     return (
@@ -75,17 +78,12 @@ class Footer extends React.Component {
               <div className="kt-footer__wrapper">
                 <div className="kt-footer__logo">
                   <Link to={"/"}>
-                    <img alt="Logo" src={toAbsoluteUrl("/media/logos/logo-2-sm.png")} />
+                    <img alt="Logo" src={toAbsoluteUrl("/media/logos/logo-netpolitan-small.png")} style={logoStyleSmall} />
                   </Link>
                   <div className="kt-footer__copyright">
                     {today}&nbsp;&copy;&nbsp;
-                    <a href="http://keenthemes.com/metronic" target="_blank">Keenthemes</a>
+                    <a href="http://www.netpolitanteam.com/" target="_blank">Admin LXP</a>
                   </div>
-                </div>
-                <div className="kt-footer__menu">
-                  <a href="http://keenthemes.com/metronic" target="_blank">Purchase License</a>
-                  <a href="http://keenthemes.com/metronic" target="_blank">Team</a>
-                  <a href="http://keenthemes.com/metronic" target="_blank">Contact</a>
                 </div>
               </div>
             </div>

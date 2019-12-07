@@ -10,6 +10,12 @@ import { toAbsoluteUrl } from "../../utils/utils";
 
 class Brand extends React.Component {
   render() {
+    const logoStyle = {
+      width: "60px"
+    };
+    const logoStyleSmall = {
+      width: "40px"
+    };
     const { brandClasses } = this.props;
     return (
       <div
@@ -21,13 +27,15 @@ class Brand extends React.Component {
             <img
               className="kt-header__brand-logo-default"
               alt="logo"
-              src={toAbsoluteUrl("/media/logos/logo-2.png")}
+              src={toAbsoluteUrl("/media/logos/logo-netpolitan-small.png")}
+              style={logoStyle}
             />
 
             <img
               className="kt-header__brand-logo-sticky"
               alt="logo"
-              src={toAbsoluteUrl("/media/logos/logo-2-sm.png")}
+              src={toAbsoluteUrl("/media/logos/logo-netpolitan-small.png")}
+              style={logoStyleSmall}
             />
           </Link>
         </div>
@@ -39,7 +47,7 @@ class Brand extends React.Component {
               className="btn btn-default dropdown-toggle"
               id="dropdown-toggle-top"
             >
-              SAAS Customers
+              LXP Customers
             </Dropdown.Toggle>
             <Dropdown.Menu className="dropdown-menu-md">
               <ul className="kt-nav kt-nav--bold kt-nav--md-space">
