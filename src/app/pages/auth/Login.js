@@ -108,8 +108,8 @@ function Login(props) {
                 ) : (
                   <div role="alert" className="alert alert-info">
                     <div className="alert-text">
-                      Use account <strong>admin@demo.com</strong> and password{" "}
-                      <strong>demo</strong> to continue.
+                      Use account <strong>adminlxp@mail.com</strong> and password{" "}
+                      <strong>lxp#2019</strong> to continue.
                     </div>
                   </div>
                 )}
