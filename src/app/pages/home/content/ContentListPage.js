@@ -51,7 +51,7 @@ export default function ContentListPage() {
         })
       }
       fetchData();
-    });
+    }, []);
 
     const editUser = (user) => {
       setValues({ ...values, ...user });
