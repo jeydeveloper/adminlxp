@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "react-bootstrap";
 import {
   Portlet,
@@ -11,6 +11,9 @@ import {
   TextField
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
+import axios from "axios";
+
+const { REACT_APP_API_URL } = process.env;
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -19,19 +22,19 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const style = {
-  rowTable: {"vertical-align":"middle"},
+  rowTable: {"verticalAlign":"middle"},
   fullWidth: {width: "100%"},
-  textAlignCenter: {"text-align": "center"},
+  textAlignCenter: {"textAlign": "center"},
 };
                   
 export default function ContentListPage() {
     const classes = useStyles();
 
     const initialStateForm = {
-      "no": "",
-      "firstname": "",
-      "lastname": "",
-      "username": ""
+      "fullname": "",
+      "username": "",
+      "email": "",
+      "password": "",
     };
     const [success, setSuccess] = useState(null);
     const [form, setForm] = useState(null);
@@ -39,14 +42,28 @@ export default function ContentListPage() {
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
 
+    useEffect(() => {
+      async function fetchData() {
+        axios.get(`${REACT_APP_API_URL}/users`)
+        .then(res => {
+          // console.log(res);
+          setUsers(res.data)
+        })
+      }
+      fetchData();
+    });
+
     const editUser = (user) => {
       setValues({ ...values, ...user });
       setForm(true);
-      setFormId(user.no);
+      setFormId(user._id);
     };
 
     const deleteUser = (user) => {
-      setUsers(users.filter(value => value.no !== user.no));
+      axios.delete(`${REACT_APP_API_URL}/users/${user._id}`)
+      .then(res => {
+        setUsers(users.filter(value => value.no !== user._id));
+      })
     };
     
     const handleChange = name => event => {
@@ -60,12 +77,20 @@ export default function ContentListPage() {
 
     const saveForm = () => {
       if(formId) {
-        setUsers(users.map(value => (value.no === formId ? values : value)));
+        axios.put(`${REACT_APP_API_URL}/users/${formId}`, values)
+        .then(res => {
+          setUsers(users.map(value => (value._id === formId ? res.data : value)));
+          setSuccess(true);
+        })
       } else {
-        setUsers([...users, values]);
-        setValues({ ...values, ...initialStateForm });
+        axios.post(`${REACT_APP_API_URL}/users`, values)
+        .then(res => {
+          values._id = res.data._id;
+          setUsers([...users, values]);
+          setValues({ ...values, ...initialStateForm });
+          setSuccess(true);
+        })
       }
-      setSuccess(true);
     };
 
     const doneForm = () => {
@@ -88,28 +113,13 @@ export default function ContentListPage() {
               <PortletBody fluid={true}>
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
-                    id="standard-no"
-                    label="No"
-                    value={values.no}
-                    onChange={handleChange("no")}
+                    id="standard-fullname"
+                    label="Fullname"
+                    value={values.fullname}
+                    onChange={handleChange("fullname")}
                     margin="normal"
                     fullWidth
-                  />
-                  <TextField
-                    id="standard-firstname"
-                    label="First Name"
-                    value={values.firstname}
-                    onChange={handleChange("firstname")}
-                    margin="normal"
-                    fullWidth
-                  />
-                  <TextField
-                    id="standard-lastname"
-                    label="Last Name"
-                    value={values.lastname}
-                    onChange={handleChange("lastname")}
-                    margin="normal"
-                    fullWidth
+                    required
                   />
                   <TextField
                     id="standard-username"
@@ -118,6 +128,25 @@ export default function ContentListPage() {
                     onChange={handleChange("username")}
                     margin="normal"
                     fullWidth
+                    required
+                  />
+                  <TextField
+                    id="standard-email"
+                    label="Email"
+                    value={values.email}
+                    onChange={handleChange("email")}
+                    margin="normal"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    id="standard-password"
+                    label="Password"
+                    value={values.password}
+                    onChange={handleChange("password")}
+                    margin="normal"
+                    fullWidth
+                    required
                   />
                 </form>
               </PortletBody>
@@ -153,9 +182,9 @@ export default function ContentListPage() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
+                      <th>Fullname</th>
                       <th>Username</th>
+                      <th>Email</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -163,10 +192,10 @@ export default function ContentListPage() {
                     {
                       users.map((value, index) => (
                         <tr key={index}>
-                          <td style={style.rowTable}>{value.no}</td>
-                          <td style={style.rowTable}>{value.firstname}</td>
-                          <td style={style.rowTable}>{value.lastname}</td>
+                          <td style={style.rowTable}>{(index + 1)}</td>
+                          <td style={style.rowTable}>{value.fullname}</td>
                           <td style={style.rowTable}>{value.username}</td>
+                          <td style={style.rowTable}>{value.email}</td>
                           <td>
                             <Button onClick={() => {editUser(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
