@@ -4,8 +4,6 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import objectPath from "object-path";
 import { LayoutContextConsumer } from "../LayoutContext";
-import { ReactComponent as SortNum1Icon } from "../../../_metronic/layout/assets/layout-svg-icons/SortNum1.svg";
-import { QuickActions } from "./components/QuickActions";
 import * as builder from "../../ducks/builder";
 // import BreadCrumbs from "./components/BreadCrumbs";
 
@@ -32,34 +30,6 @@ class SubHeader extends React.Component {
               <a href="#" className="btn btn-label-primary btn-bold btn-icon-h">
                 Add New
               </a>
-            </div>
-
-            {/*Subheader Toolbar*/}
-            <div className="kt-subheader__toolbar">
-              <div className="kt-subheader__wrapper">
-                <button type="button" className="btn kt-subheader__btn-primary">
-                  Actions &nbsp;
-                  <SortNum1Icon className="kt-svg-icon kt-svg-icon--sm" />
-                </button>
-
-                <a className="btn kt-subheader__btn-primary btn-icon" href="">
-                  <i className="flaticon2-file" />
-                </a>
-
-                <a className="btn kt-subheader__btn-primary btn-icon" href="#">
-                  <i className="flaticon-download-1" />
-                </a>
-
-                <a className="btn kt-subheader__btn-primary btn-icon" href="#">
-                  <i className="flaticon2-fax" />
-                </a>
-
-                <a className="btn kt-subheader__btn-primary btn-icon" href="#">
-                  <i className="flaticon2-settings" />
-                </a>
-
-                <QuickActions />
-              </div>
             </div>
           </div>
         </div>

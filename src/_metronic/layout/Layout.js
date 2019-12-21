@@ -121,7 +121,7 @@ const mapStateToProps = ({ builder: { layoutConfig } }) => ({
   layoutConfig,
   selfLayout: objectPath.get(layoutConfig, "self.layout"),
   asideDisplay: objectPath.get(layoutConfig, "aside.self.display"),
-  subheaderDisplay: objectPath.get(layoutConfig, "subheader.display"),
+  subheaderDisplay: false,
   fluid: objectPath.get(layoutConfig, "content.width") === "fluid",
 
   contentExtended: objectPath.get(layoutConfig, "content.extended")

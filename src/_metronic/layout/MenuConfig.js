@@ -10,6 +10,25 @@ export default {
         translate: "MENU.DASHBOARD"
       },
       {
+        title: "Content",
+        root: true,
+        alignment: "left",
+        toggle: "click",
+        page: "content",
+        submenu: [
+          {
+            title: "List Content",
+            icon: "flaticon2-expand",
+            page: "content/list-content"
+          },
+          {
+            title: "List Channel",
+            icon: "flaticon2-list",
+            page: "content/list-channel"
+          }
+        ]
+      },
+      {
         title: "Material UI",
         root: true,
         alignment: "left",
@@ -502,6 +521,18 @@ export default {
         page: "dashboard",
         translate: "MENU.DASHBOARD",
         bullet: "dot"
+      },
+      {
+        title: "List Content",
+        root: true,
+        icon: "flaticon2-expand",
+        page: "content/list-content"
+      },
+      {
+        title: "List Channel",
+        root: true,
+        icon: "flaticon2-list",
+        page: "content/list-channel"
       },
       {
         title: "Layout Builder",

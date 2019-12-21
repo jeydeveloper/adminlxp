@@ -11,6 +11,9 @@ const GoogleMaterialPage = lazy(() =>
 const ReactBootstrapPage = lazy(() =>
   import("./react-bootstrap/ReactBootstrapPage")
 );
+const ContentPage = lazy(() =>
+  import("./content/ContentPage")
+);
 
 export default function HomePage() {
   return (
@@ -22,6 +25,7 @@ export default function HomePage() {
         }
         <Route path="/builder" component={Builder} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/content" component={ContentPage} />
         <Route path="/google-material" component={GoogleMaterialPage} />
         <Route path="/react-bootstrap" component={ReactBootstrapPage} />
         <Route path="/docs" component={DocsPage} />
