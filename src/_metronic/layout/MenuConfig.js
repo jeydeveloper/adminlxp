@@ -10,6 +10,18 @@ export default {
         translate: "MENU.DASHBOARD"
       },
       {
+        title: "User",
+        root: true,
+        alignment: "left",
+        page: "user"
+      },
+      {
+        title: "Attribute",
+        root: true,
+        alignment: "left",
+        page: "attribute"
+      },
+      {
         title: "Content",
         root: true,
         alignment: "left",
