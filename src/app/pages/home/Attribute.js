@@ -8,7 +8,10 @@ import {
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  TextField
+  TextField,
+  FormControlLabel,
+  RadioGroup,
+  Radio
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -32,6 +35,7 @@ export default function Attribute() {
 
     const initialStateForm = {
       "name": "",
+      "show_for": "",
       "type": "",
       "value": [""]
     };
@@ -96,8 +100,9 @@ export default function Attribute() {
         .then(res => {
           values._id = res.data._id;
           setAttributes([...attributes, values]);
-          setValues({ ...values, ...initialStateForm });
+          setValues({ ...initialStateForm });
           setSuccess(true);
+          setListValue([""]);
         })
       }
     };
@@ -134,15 +139,67 @@ export default function Attribute() {
                     fullWidth
                     required
                   />
-                  <TextField
-                    id="standard-type"
-                    label="Type"
+                    <RadioGroup
+                    aria-label="show_for"
+                    name="show_for"
+                    value={values.show_for}
+                    onChange={handleChange("show_for")}
+                    row
+                    style={{"margin-top": "16px", "margin-bottom": "8px"}}
+                    >
+                    <FormControlLabel
+                        value="user"
+                        control={<Radio color="primary" />}
+                        label="Show For User"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="content"
+                        control={<Radio color="primary" />}
+                        label="Show For Content"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="channel"
+                        control={<Radio color="primary" />}
+                        label="Show For Channel"
+                        labelPlacement="end"
+                    />
+                    </RadioGroup>
+
+                    <RadioGroup
+                    aria-label="type"
+                    name="type"
                     value={values.type}
                     onChange={handleChange("type")}
-                    margin="normal"
-                    fullWidth
-                    required
-                  />
+                    row
+                    style={{"margin-top": "16px", "margin-bottom": "8px"}}
+                    >
+                    <FormControlLabel
+                        value="list"
+                        control={<Radio color="primary" />}
+                        label="List"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="multiselect"
+                        control={<Radio color="primary" />}
+                        label="Multiselect"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="date"
+                        control={<Radio color="primary" />}
+                        label="Date"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="text"
+                        control={<Radio color="primary" />}
+                        label="Text"
+                        labelPlacement="end"
+                    />
+                    </RadioGroup>
                   {
                       listValue.map((value, index) => (
                       <TextField
@@ -195,6 +252,7 @@ export default function Attribute() {
                     <tr>
                       <th>#</th>
                       <th>Name</th>
+                      <th>Show For</th>
                       <th>Type</th>
                       <th>Value</th>
                       <th>Action</th>
@@ -206,6 +264,7 @@ export default function Attribute() {
                         <tr key={index}>
                           <td style={style.rowTable}>{(index + 1)}</td>
                           <td style={style.rowTable}>{value.name}</td>
+                          <td style={style.rowTable}>{value.show_for}</td>
                           <td style={style.rowTable}>{value.type}</td>
                           <td style={style.rowTable}>{value.value.join(", ")}</td>
                           <td>
