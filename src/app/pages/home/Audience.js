@@ -30,44 +30,43 @@ const style = {
   textAlignCenter: {"textAlign": "center"},
 };
                   
-export default function Attribute() {
+export default function Audience() {
     const classes = useStyles();
 
     const initialStateForm = {
       "name": "",
-      "show_for": "",
       "type": "",
       "value": [""]
     };
     const [success, setSuccess] = useState(null);
     const [form, setForm] = useState(null);
-    const [attributes, setAttributes] = useState([]);
+    const [audiences, setAudiences] = useState([]);
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
     const [listValue, setListValue] = useState([""]);
 
     useEffect(() => {
       async function fetchData() {
-        axios.get(`${REACT_APP_API_URL}/attributes`)
+        axios.get(`${REACT_APP_API_URL}/audiences`)
         .then(res => {
           // console.log(res);
-          setAttributes(res.data)
+          setAudiences(res.data)
         })
       }
       fetchData();
     }, []);
 
-    const editAttribute = (attribute) => {
-      setValues({ ...values, ...attribute });
+    const editAudience = (audience) => {
+      setValues({ ...values, ...audience });
       setForm(true);
-      setFormId(attribute._id);
-      setListValue(attribute.value);
+      setFormId(audience._id);
+      setListValue(audience.value);
     };
 
-    const deleteAttribute = (attribute) => {
-      axios.delete(`${REACT_APP_API_URL}/attributes/${attribute._id}`)
+    const deleteAudience = (audience) => {
+      axios.delete(`${REACT_APP_API_URL}/audiences/${audience._id}`)
       .then(res => {
-        setAttributes(attributes.filter(value => value._id !== attribute._id));
+        setAudiences(audiences.filter(value => value._id !== audience._id));
       })
     };
     
@@ -75,13 +74,7 @@ export default function Attribute() {
       setValues({ ...values, [name]: event.target.value });
     };
 
-    const handleMultiValueChange = index => event => {
-        let tmp = [...values.value, event.target.value];
-        setValues({ ...values, "value": tmp });
-        listValue[index] = event.target.value;
-      };
-
-    const addAttribute = () => {
+    const addAudience = () => {
       setListValue([""]);
       setValues({ ...values, ...initialStateForm });
       setForm(true);
@@ -90,16 +83,16 @@ export default function Attribute() {
     const saveForm = () => {
         values.value = listValue;
       if(formId) {
-        axios.put(`${REACT_APP_API_URL}/attributes/${formId}`, values)
+        axios.put(`${REACT_APP_API_URL}/audiences/${formId}`, values)
         .then(res => {
-          setAttributes(attributes.map(value => (value._id === formId ? res.data : value)));
+          setAudiences(audiences.map(value => (value._id === formId ? res.data : value)));
           setSuccess(true);
         })
       } else {
-        axios.post(`${REACT_APP_API_URL}/attributes`, values)
+        axios.post(`${REACT_APP_API_URL}/audiences`, values)
         .then(res => {
           values._id = res.data._id;
-          setAttributes([...attributes, values]);
+          setAudiences([...audiences, values]);
           setValues({ ...initialStateForm });
           setSuccess(true);
           setListValue([""]);
@@ -140,34 +133,6 @@ export default function Attribute() {
                     required
                   />
                   <RadioGroup
-                  aria-label="show_for"
-                  name="show_for"
-                  value={values.show_for}
-                  onChange={handleChange("show_for")}
-                  row
-                  style={{"margin-top": "16px", "margin-bottom": "8px"}}
-                  >
-                  <FormControlLabel
-                      value="user"
-                      control={<Radio color="primary" />}
-                      label="Show For User"
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="content"
-                      control={<Radio color="primary" />}
-                      label="Show For Content"
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="channel"
-                      control={<Radio color="primary" />}
-                      label="Show For Channel"
-                      labelPlacement="end"
-                  />
-                  </RadioGroup>
-
-                  <RadioGroup
                   aria-label="type"
                   name="type"
                   value={values.type}
@@ -176,44 +141,18 @@ export default function Attribute() {
                   style={{"margin-top": "16px", "margin-bottom": "8px"}}
                   >
                   <FormControlLabel
-                      value="list"
+                      value="attribute"
                       control={<Radio color="primary" />}
-                      label="List"
+                      label="Attribute User"
                       labelPlacement="end"
                   />
                   <FormControlLabel
-                      value="multiselect"
+                      value="individual"
                       control={<Radio color="primary" />}
-                      label="Multiselect"
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="date"
-                      control={<Radio color="primary" />}
-                      label="Date"
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="text"
-                      control={<Radio color="primary" />}
-                      label="Text"
+                      label="Individual User"
                       labelPlacement="end"
                   />
                   </RadioGroup>
-                  {
-                      listValue.map((value, index) => (
-                      <TextField
-                      key={index}
-                      id={`standard-value-${index}`}
-                      label={`Value ${(index + 1)}`}
-                      value={value}
-                      onChange={handleMultiValueChange(index)}
-                      margin="normal"
-                      fullWidth
-                      required
-                    />
-                  ))
-                  }
                 </form>
               </PortletBody>
             </Portlet>
@@ -239,10 +178,10 @@ export default function Attribute() {
           <div className="col-md-12">
             <Portlet>
               <PortletHeader
-                title="List Attribute"
+                title="List Audience"
                 toolbar={
-                  <Button onClick={addAttribute} color="primary" variant="contained" className={classes.button}>
-                    Add Attribute
+                  <Button onClick={addAudience} color="primary" variant="contained" className={classes.button}>
+                    Add Audience
                   </Button>
                 }
               />
@@ -252,33 +191,29 @@ export default function Attribute() {
                     <tr>
                       <th>#</th>
                       <th>Name</th>
-                      <th>Show For</th>
                       <th>Type</th>
-                      <th>Value</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {
-                      attributes.map((value, index) => (
+                      audiences.map((value, index) => (
                         <tr key={index}>
                           <td style={style.rowTable}>{(index + 1)}</td>
                           <td style={style.rowTable}>{value.name}</td>
-                          <td style={style.rowTable}>{value.show_for}</td>
                           <td style={style.rowTable}>{value.type}</td>
-                          <td style={style.rowTable}>{value.value.join(", ")}</td>
                           <td>
-                            <Button onClick={() => {editAttribute(value)}} color="primary" variant="contained" className={classes.button}>
+                            <Button onClick={() => {editAudience(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                             <Button onClick={() => {deleteAttribute(value)}} variant="contained" className={classes.button}>
+                             <Button onClick={() => {deleteAudience(value)}} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
                         </tr>
                       ))
                     }
-                    {attributes.length === 0 && (
+                    {audiences.length === 0 && (
                       <tr>
                         <td colSpan="5">Data is empty</td>
                       </tr>

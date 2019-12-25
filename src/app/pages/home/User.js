@@ -190,9 +190,9 @@ export default function User() {
                   </thead>
                   <tbody>
                     {
-                      users.map((value, index) => (
-                        <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td>
+                      users.map((value, index) => {
+                        return index !== 0 ? <tr key={index}>
+                          <td style={style.rowTable}>{index}</td>
                           <td style={style.rowTable}>{value.fullname}</td>
                           <td style={style.rowTable}>{value.username}</td>
                           <td style={style.rowTable}>{value.email}</td>
@@ -204,8 +204,8 @@ export default function User() {
                               Delete
                             </Button>
                           </td>
-                        </tr>
-                      ))
+                        </tr> : ''
+                      })
                     }
                     {users.length === 0 && (
                       <tr>

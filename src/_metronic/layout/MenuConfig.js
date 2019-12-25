@@ -22,6 +22,12 @@ export default {
         page: "attribute"
       },
       {
+        title: "Audience",
+        root: true,
+        alignment: "left",
+        page: "audience"
+      },
+      {
         title: "Content",
         root: true,
         alignment: "left",

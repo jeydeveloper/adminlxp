@@ -26,10 +26,12 @@ class SubHeader extends React.Component {
                     </>
                 )}
               </LayoutContextConsumer>
+              {/*
               <span className="kt-subheader__separator kt-subheader__separator--v" />
               <a href="#" className="btn btn-label-primary btn-bold btn-icon-h">
                 Add New
               </a>
+              */}
             </div>
           </div>
         </div>
