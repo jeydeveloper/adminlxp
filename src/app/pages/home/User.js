@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Table } from "react-bootstrap";
 import {
   Portlet,
@@ -35,12 +35,15 @@ export default function User() {
       "username": "",
       "email": "",
       "password": "",
+      "attribute": [],
     };
     const [success, setSuccess] = useState(null);
     const [form, setForm] = useState(null);
     const [users, setUsers] = useState([]);
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
+    const [attributes, setAttributes] = useState([]);
+    const [attributeValue, setAttributeValue] = useState([]);
 
     useEffect(() => {
       async function fetchData() {
@@ -51,12 +54,20 @@ export default function User() {
         })
       }
       fetchData();
+      async function fetchDataAttribute() {
+        axios.get(`${REACT_APP_API_URL}/attributes`)
+        .then(res => {
+          setAttributes(res.data.filter(value => value.show_for === "user"));
+        })
+      }
+      fetchDataAttribute();
     }, []);
 
     const editUser = (user) => {
       setValues({ ...values, ...user });
       setForm(true);
       setFormId(user._id);
+      setAttributeValue(user.attribute.map(value => value.attribute_value));
     };
 
     const deleteUser = (user) => {
@@ -70,12 +81,22 @@ export default function User() {
       setValues({ ...values, [name]: event.target.value });
     };
 
+    const handleAttribute = index => event => {
+        let newAttributeValue = [...attributeValue];
+        newAttributeValue[index] = event.target.value;
+        setAttributeValue(newAttributeValue);
+    };
+
     const addUser = () => {
       setValues({ ...values, ...initialStateForm });
       setForm(true);
     };
 
     const saveForm = () => {
+        values.attribute = attributes.map((valAttribute, idxAttribute) => ({
+        "attribute_name":valAttribute.name,
+        "attribute_value":(attributeValue[idxAttribute] || "")
+        }));
       if(formId) {
         axios.put(`${REACT_APP_API_URL}/users/${formId}`, values)
         .then(res => {
@@ -89,6 +110,7 @@ export default function User() {
           setUsers([...users, values]);
           setValues({ ...values, ...initialStateForm });
           setSuccess(true);
+          clearForm();
         })
       }
     };
@@ -97,6 +119,11 @@ export default function User() {
       setForm(false);
       setSuccess(false);
       setFormId(null);
+      clearForm();
+    };
+
+    const clearForm = () => {
+        setAttributeValue([]);
     };
 
     return (
@@ -148,6 +175,34 @@ export default function User() {
                     fullWidth
                     required
                   />
+                  {
+                    attributes.map((valAttribute, idxAttribute) => 
+                        <Fragment key={`userattribute${idxAttribute}`}>
+                        {valAttribute.type === "date" && 
+                        <TextField
+                            value={attributeValue[idxAttribute] || ""}
+                            type="date"
+                            label={valAttribute.name}
+                            onChange={handleAttribute(idxAttribute)}
+                            margin="normal"
+                            fullWidth
+                            InputLabelProps={{
+                                shrink: true
+                            }}
+                        />
+                        }
+                        {valAttribute.type === "text" && 
+                        <TextField
+                            value={attributeValue[idxAttribute] || ""}
+                            label={valAttribute.name}
+                            onChange={handleAttribute(idxAttribute)}
+                            margin="normal"
+                            fullWidth
+                        />
+                        }
+                        </Fragment>
+                    )
+                  }
                 </form>
               </PortletBody>
             </Portlet>
@@ -204,7 +259,7 @@ export default function User() {
                               Delete
                             </Button>
                           </td>
-                        </tr> : ''
+                        </tr> : null
                       })
                     }
                     {users.length === 0 && (
