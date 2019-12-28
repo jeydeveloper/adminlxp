@@ -201,15 +201,20 @@ export default function User() {
                     fullWidth
                     required
                   />
-                  <TextField
-                    id="standard-password"
-                    label="Password"
-                    value={values.password}
-                    onChange={handleChange("password")}
-                    margin="normal"
-                    fullWidth
-                    required
-                  />
+                  {
+                      !formId && 
+                      <TextField
+                        id="standard-password"
+                        type="password"
+                        label="Password"
+                        value={values.password}
+                        onChange={handleChange("password")}
+                        margin="normal"
+                        fullWidth
+                        required
+                    />
+                  }
+                  
                   {
                     attributes.map((valAttribute, idxAttribute) => 
                         <Fragment key={`userattribute${idxAttribute}`}>
