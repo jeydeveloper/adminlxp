@@ -28,6 +28,10 @@ const style = {
   rowTable: {"verticalAlign":"middle"},
   fullWidth: {width: "100%"},
   textAlignCenter: {"textAlign": "center"},
+  marginTopBottom: {
+    marginTop: "16px", 
+    marginBottom: "8px"
+  }
 };
                   
 export default function Attribute() {
@@ -145,7 +149,7 @@ export default function Attribute() {
                   value={values.show_for}
                   onChange={handleChange("show_for")}
                   row
-                  style={{"margin-top": "16px", "margin-bottom": "8px"}}
+                  style={style.marginTopBottom}
                   >
                   <FormControlLabel
                       value="user"
@@ -173,7 +177,7 @@ export default function Attribute() {
                   value={values.type}
                   onChange={handleChange("type")}
                   row
-                  style={{"margin-top": "16px", "margin-bottom": "8px"}}
+                  style={style.marginTopBottom}
                   >
                   <FormControlLabel
                       value="list"
