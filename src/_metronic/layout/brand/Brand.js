@@ -51,6 +51,7 @@ class Brand extends React.Component {
             >
               LXP Customers
             </Dropdown.Toggle>
+            {/*}
             <Dropdown.Menu className="dropdown-menu-md">
               <ul className="kt-nav kt-nav--bold kt-nav--md-space">
                 <li className="kt-nav__item">
@@ -106,6 +107,7 @@ class Brand extends React.Component {
                 </li>
               </ul>
             </Dropdown.Menu>
+            */}
           </Dropdown>
         </div>
       </div>

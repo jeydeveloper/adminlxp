@@ -6,7 +6,7 @@ import HMenuItem from "./HMenuItem";
 import * as builder from "../../../ducks/builder";
 import KTMenu from "../../../_assets/js/menu";
 import KTOffcanvas from "../../../_assets/js/offcanvas";
-import SearchDropdown from "../../../../app/partials/layout/SearchDropdown";
+// import SearchDropdown from "../../../../app/partials/layout/SearchDropdown";
 
 const offcanvasOptions = {
     overlay: true,
@@ -113,9 +113,11 @@ class HMenu extends React.Component {
                             })}
                         </ul>
                     </div>
+                    {/*}
                     <div className="kt-header-toolbar">
                         <SearchDropdown useSVG="false" />
                     </div>
+                    */}
                 </div>
             </>
         );

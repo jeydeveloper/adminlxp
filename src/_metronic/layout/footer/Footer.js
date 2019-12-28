@@ -95,7 +95,7 @@ class Footer extends React.Component {
 }
 
 const mapStateToProps = store => ({
-  footerSelfLayoutIsExtended: objectPath.get(store.builder.layoutConfig, "footer.self.layout") === "extended",
+  footerSelfLayoutIsExtended: objectPath.get(store.builder.layoutConfig, "footer.self.layout") === "extendeds",
   footerClasses: builder.selectors.getClasses(store, { path: "footer", toString: true}),
   footerContainerClasses: builder.selectors.getClasses(store, { path: "footer_container", toString: true}),
 });

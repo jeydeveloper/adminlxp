@@ -52,13 +52,16 @@ class UserProfile extends React.Component {
               </span>
             </div>
             <div className="kt-user-card__name">{user.fullname}</div>
+            {/*}
             <div className="kt-user-card__badge">
               <span className="btn btn-success btn-sm btn-bold btn-font-md">
                 23 messages
               </span>
             </div>
+          */}
           </div>
           <div className="kt-notification">
+            {/*}
             <a className="kt-notification__item">
               <div className="kt-notification__item-icon">
                 <i className="flaticon2-calendar-3 kt-font-success" />
@@ -111,6 +114,7 @@ class UserProfile extends React.Component {
                 </div>
               </div>
             </a>
+            */}
             <div className="kt-notification__custom">
               <Link
                 to="/logout"

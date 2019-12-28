@@ -13,6 +13,7 @@ export default class Topbar extends React.Component {
     return (
         <div className="kt-header__topbar">
 
+        {/*
         <MyCart
           icon={toAbsoluteUrl("/media/icons/svg/Shopping/Cart%233.svg")}
           iconType=""
@@ -44,6 +45,7 @@ export default class Topbar extends React.Component {
         <QuickPanelToggler />
 
         <LanguageSelector iconType="" />
+        */}
 
         <UserProfile showAvatar={false} showHi={true} showBadge={true} />
       </div>

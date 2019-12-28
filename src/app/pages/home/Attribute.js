@@ -41,14 +41,14 @@ export default function Attribute() {
       "name": "",
       "show_for": "",
       "type": "",
-      "value": [""]
+      "value": []
     };
     const [success, setSuccess] = useState(null);
     const [form, setForm] = useState(null);
     const [attributes, setAttributes] = useState([]);
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
-    const [listValue, setListValue] = useState([""]);
+    const [listValue, setListValue] = useState([]);
 
     useEffect(() => {
       async function fetchData() {
@@ -77,6 +77,12 @@ export default function Attribute() {
     
     const handleChange = name => event => {
       setValues({ ...values, [name]: event.target.value });
+      if(event.target.value === "date" || event.target.value === "text") {
+        setListValue([]);
+      }
+      if(event.target.value === "list" || event.target.value === "multiselect") {
+        setListValue([""]);
+      }
     };
 
     const handleMultiValueChange = index => event => {
@@ -86,7 +92,6 @@ export default function Attribute() {
       };
 
     const addAttribute = () => {
-      setListValue([""]);
       setValues({ ...values, ...initialStateForm });
       setForm(true);
     };
@@ -106,7 +111,7 @@ export default function Attribute() {
           setAttributes([...attributes, values]);
           setValues({ ...initialStateForm });
           setSuccess(true);
-          setListValue([""]);
+          setListValue([]);
         })
       }
     };
@@ -115,6 +120,7 @@ export default function Attribute() {
       setForm(false);
       setSuccess(false);
       setFormId(null);
+      setListValue([]);
     };
 
     const addNewValue = () => {
@@ -127,7 +133,7 @@ export default function Attribute() {
           <div className="row">
             <div className="col-md-12">
             {success && (
-            <Alert style={{"margin-top":"10px"}} variant="success">
+            <Alert style={{"marginTop":"10px"}} variant="success">
               Save data success!
             </Alert>
             )}

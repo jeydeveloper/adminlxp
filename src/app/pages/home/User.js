@@ -8,7 +8,13 @@ import {
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  TextField
+  TextField,
+  Select,
+  Chip,
+  MenuItem,
+  Input,
+  FormControl,
+  InputLabel
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -19,12 +25,29 @@ const useStyles = makeStyles(theme => ({
   button: {
     margin: theme.spacing(1),
   },
+  formControl: {
+    minWidth: 300,
+    maxWidth: 400,
+    marginTop: "16px",
+    marginRight: "8px"
+  },
+  chips: {
+    display: "flex",
+    flexWrap: "wrap"
+  },
+  chip: {
+    margin: 2
+  }
 }));
 
 const style = {
   rowTable: {"verticalAlign":"middle"},
   fullWidth: {width: "100%"},
   textAlignCenter: {"textAlign": "center"},
+  marginTopBottom: {
+    marginTop: "16px", 
+    marginBottom: "8px"
+  }
 };
                   
 export default function User() {
@@ -37,6 +60,18 @@ export default function User() {
       "password": "",
       "attribute": [],
     };
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+      PaperProps: {
+        style: {
+          maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+          width: 250
+        }
+      }
+    };
+
     const [success, setSuccess] = useState(null);
     const [form, setForm] = useState(null);
     const [users, setUsers] = useState([]);
@@ -132,7 +167,7 @@ export default function User() {
           <div className="row">
             <div className="col-md-12">
             {success && (
-            <Alert style={{"margin-top":"10px"}} variant="success">
+            <Alert style={{"marginTop":"10px"}} variant="success">
               Save data success!
             </Alert>
             )}
@@ -199,6 +234,55 @@ export default function User() {
                             margin="normal"
                             fullWidth
                         />
+                        }
+                        {valAttribute.type === "list" && 
+                        <div>
+                        <FormControl className={classes.formControl}>
+                        <InputLabel>{valAttribute.name}</InputLabel>
+                        <Select
+                          key={`sel2${idxAttribute}`}
+                          value={attributeValue[idxAttribute] || ""}
+                          onChange={handleAttribute(idxAttribute)}
+                          displayEmpty
+                          name="attributevalue"
+                        >
+                          {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
+                            <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
+                          )}
+                        </Select>
+                        </FormControl>
+                        </div>
+                        }
+                        {valAttribute.type === "multiselect" && 
+                        <div>
+                        <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="select-multiple-chip">{valAttribute.name}</InputLabel>
+                        <Select
+                          multiple
+                          key={`sel2${idxAttribute}`}
+                          value={attributeValue[idxAttribute] || []}
+                          onChange={handleAttribute(idxAttribute)}
+                          name="attributevalue"
+                          input={<Input id={`select-multiple-chip-${idxAttribute}`} />}
+                          renderValue={selected => (
+                            <div className={classes.chips}>
+                              {selected.map(value => (
+                                <Chip
+                                  key={value}
+                                  label={value}
+                                  className={classes.chip}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          MenuProps={MenuProps}
+                        >
+                          {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
+                            <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
+                          )}
+                        </Select>
+                        </FormControl>
+                        </div>
                         }
                         </Fragment>
                     )
