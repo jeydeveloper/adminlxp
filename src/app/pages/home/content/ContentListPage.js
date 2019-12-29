@@ -14,7 +14,10 @@ import {
   MenuItem,
   Input,
   FormControl,
-  InputLabel
+  InputLabel,
+  FormControlLabel,
+  RadioGroup,
+  Radio
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -45,8 +48,7 @@ const style = {
   fullWidth: {width: "100%"},
   textAlignCenter: {"textAlign": "center"},
   marginTopBottom: {
-    marginTop: "16px", 
-    marginBottom: "8px"
+    marginTop: "16px"
   }
 };
                   
@@ -292,16 +294,51 @@ export default function ContentListPage() {
                     fullWidth
                     required
                   />
+
+                  <RadioGroup
+                  aria-label="type"
+                  name="type"
+                  value={values.type}
+                  onChange={handleChange("type")}
+                  row
+                  style={style.marginTopBottom}
+                  >
+                  <FormControlLabel
+                      value="Course"
+                      control={<Radio color="primary" />}
+                      label="Course"
+                      labelPlacement="end"
+                  />
+                  <FormControlLabel
+                      value="Video"
+                      control={<Radio color="primary" />}
+                      label="Video"
+                      labelPlacement="end"
+                  />
+                  <FormControlLabel
+                      value="Document"
+                      control={<Radio color="primary" />}
+                      label="Document"
+                      labelPlacement="end"
+                  />
+                  <FormControlLabel
+                      value="HTMLResource"
+                      control={<Radio color="primary" />}
+                      label="HTML Resource"
+                      labelPlacement="end"
+                  />
+                  </RadioGroup>
+                  
                   <TextField
-                    id="standard-type"
-                    label="Type"
-                    value={values.type}
-                    onChange={handleChange("type")}
+                    id="standard-source"
+                    label="Source"
+                    value={values.source}
+                    onChange={handleChange("source")}
                     margin="normal"
                     fullWidth
                     required
                   />
-                  <input type="file" name="file" onChange={handleChange("upload")}/>
+                  <input style={{marginTop:"15px"}} type="file" name="file" onChange={handleChange("upload")}/>
                   {
                     attributes.map((valAttribute, idxAttribute) => 
                         <Fragment key={`contentattribute${idxAttribute}`}>
