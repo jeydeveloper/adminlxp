@@ -443,7 +443,7 @@ export default function Audience() {
                     }
                     {audiences.length === 0 && (
                       <tr>
-                        <td colSpan="5">Data is empty</td>
+                        <td colSpan="4">Data is empty</td>
                       </tr>
                     )}
                   </tbody>

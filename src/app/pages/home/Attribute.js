@@ -290,7 +290,7 @@ export default function Attribute() {
                     }
                     {attributes.length === 0 && (
                       <tr>
-                        <td colSpan="5">Data is empty</td>
+                        <td colSpan="6">Data is empty</td>
                       </tr>
                     )}
                   </tbody>

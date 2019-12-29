@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Table } from "react-bootstrap";
+import { Table, Image } from "react-bootstrap";
 import {
   Portlet,
   PortletBody,
@@ -57,6 +57,8 @@ export default function ContentListPage() {
       "title": "",
       "description": "",
       "type": "",
+      "image": "",
+      "source": "",
       "attribute": [],
     };
 
@@ -80,6 +82,7 @@ export default function ContentListPage() {
     const [attributes, setAttributes] = useState([]);
     const [attributeValue, setAttributeValue] = useState([]);
     const [images, setImages] = useState(null);
+    const [message, setMessage] = useState(null);
 
     useEffect(() => {
       async function fetchData() {
@@ -112,12 +115,52 @@ export default function ContentListPage() {
         setContents(contents.filter(value => value._id !== content._id));
       })
     };
+
+    const checkMimeType = (event )=> {
+      let files = event.target.files;
+      let err = '';
+      const types = ['image/png', 'image/jpeg', 'image/gif'];
+      for(let x = 0; x<files.length; x++) {
+        if (types.every(type => files[x].type !== type)) {
+          err += files[x].type+' is not a supported format\n';
+        }
+      };
+    
+      if (err !== '') {
+        event.target.value = null;
+        setFailed(true);
+        setMessage(err);
+        return false; 
+      }
+     return true;
+    }
+
+    const checkFileSize = (event) => {
+      let files = event.target.files;
+      let size = 2097152; //2M
+      let err = ""; 
+      for(let x = 0; x<files.length; x++) {
+          if (files[x].size > size) {
+          err += files[x].type+' is too large, please pick a smaller file (max 2M) \n';
+        }
+      };
+      if (err !== '') {
+          event.target.value = null;
+          setFailed(true);
+          setMessage(err);
+          return false;
+      }
+      return true;
+    }
     
     const handleChange = name => event => {
+      setFailed(false);
+      setMessage(null);
       if(name === "upload") {
         const files = event.target.files[0];
-        console.log(files);
-        setImages(files);
+        if(checkMimeType(event) && checkFileSize(event)) {
+          setImages(files);
+        }
       } else {
         setValues({ ...values, [name]: event.target.value });
       }
@@ -142,23 +185,41 @@ export default function ContentListPage() {
       "attribute_value":(attributeValue[idxAttribute] || "")
       }));
       if(formId) {
-        axios.put(`${REACT_APP_API_URL}/contents/${formId}`, values)
-        .then(res => {
-          setContents(contents.map(value => (value._id === formId ? res.data : value)));
-          setSuccess(true);
-        })
+        if(images) {
+          const data = new FormData();
+          data.append('file', images)
+          axios.post(`${REACT_APP_API_URL}/upload`, data)
+          .then(res => {
+            return axios.put(`${REACT_APP_API_URL}/contents/${formId}`, { ...values, "image":res.data.filename })
+          })
+          .then(res => {
+            setContents(contents.map(value => (value._id === formId ? res.data : value)));
+            setSuccess(true);
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+        } else {
+          axios.put(`${REACT_APP_API_URL}/contents/${formId}`, values)
+          .then(res => {
+            setContents(contents.map(value => (value._id === formId ? res.data : value)));
+            setSuccess(true);
+          })
+        }
       } else {
         if(images) {
           const data = new FormData();
           data.append('file', images)
           axios.post(`${REACT_APP_API_URL}/upload`, data)
           .then(res => {
-            console.log(res);
-            return axios.post(`${REACT_APP_API_URL}/contents`, values);
+            return Promise.all([
+              axios.post(`${REACT_APP_API_URL}/contents`, { ...values, "image":res.data.filename }),
+              res.data.filename
+            ]);
           })
           .then(res => {
-            values._id = res.data._id;
-            setContents([...contents, values]);
+            values._id = res[0].data._id;
+            setContents([...contents, { ...values, "image":res[1] }]);
             setValues({ ...values, ...initialStateForm });
             setSuccess(true);
             clearForm();
@@ -207,7 +268,7 @@ export default function ContentListPage() {
             )}
             {failed && (
             <Alert style={{"marginTop":"10px"}} variant="danger">
-              Save data failed!
+              {message}
             </Alert>
             )}
             <Portlet>
@@ -355,6 +416,7 @@ export default function ContentListPage() {
                       <th>Title</th>
                       <th>Description</th>
                       <th>Type</th>
+                      <th>Image</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -366,6 +428,7 @@ export default function ContentListPage() {
                           <td style={style.rowTable}>{value.title}</td>
                           <td style={style.rowTable}>{value.description}</td>
                           <td style={style.rowTable}>{value.type}</td>
+                          <td style={style.rowTable}><Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${value.image}`} thumbnail /></td>
                           <td>
                             <Button onClick={() => {editContent(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
@@ -379,7 +442,7 @@ export default function ContentListPage() {
                     }
                     {contents.length === 0 && (
                       <tr>
-                        <td colSpan="5">Data is empty</td>
+                        <td colSpan="6">Data is empty</td>
                       </tr>
                     )}
                   </tbody>
