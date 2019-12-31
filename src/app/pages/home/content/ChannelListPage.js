@@ -203,7 +203,6 @@ export default function ChannelListPage() {
         let contentFilter = contents.filter(valContents => valContents.title === valContentValue);
         return contentFilter[0]._id;
       })
-      console.log(values);
       if(formId) {
         if(images) {
           const data = new FormData();

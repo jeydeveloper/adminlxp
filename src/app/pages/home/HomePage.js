@@ -5,6 +5,7 @@ import Dashboard from "./Dashboard";
 import User from "./User";
 import Attribute from "./Attribute";
 import Audience from "./Audience";
+import Setting from "./Setting";
 import DocsPage from "./docs/DocsPage";
 import { LayoutSplashScreen } from "../../../_metronic";
 
@@ -32,6 +33,7 @@ export default function HomePage() {
         <Route path="/attribute" component={Attribute} />
         <Route path="/audience" component={Audience} />
         <Route path="/content" component={ContentPage} />
+        <Route path="/setting" component={Setting} />
         <Route path="/google-material" component={GoogleMaterialPage} />
         <Route path="/react-bootstrap" component={ReactBootstrapPage} />
         <Route path="/docs" component={DocsPage} />

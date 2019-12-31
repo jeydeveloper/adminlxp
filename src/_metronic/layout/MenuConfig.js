@@ -47,6 +47,12 @@ export default {
         ]
       },
       {
+        title: "Setting",
+        root: true,
+        alignment: "left",
+        page: "setting"
+      },
+      {
         title: "Material UI",
         root: true,
         alignment: "left",
