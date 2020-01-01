@@ -73,12 +73,14 @@ export default function User() {
     };
 
     const [success, setSuccess] = useState(null);
+    const [failed, setFailed] = useState(null);
     const [form, setForm] = useState(null);
     const [users, setUsers] = useState([]);
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
     const [attributes, setAttributes] = useState([]);
     const [attributeValue, setAttributeValue] = useState([]);
+    const [message, setMessage] = useState(null);
 
     useEffect(() => {
       async function fetchData() {
@@ -113,10 +115,14 @@ export default function User() {
     };
     
     const handleChange = name => event => {
+      setFailed(false);
+      setMessage(null);
       setValues({ ...values, [name]: event.target.value });
     };
 
     const handleAttribute = index => event => {
+      setFailed(false);
+      setMessage(null);
         let newAttributeValue = [...attributeValue];
         newAttributeValue[index] = event.target.value;
         setAttributeValue(newAttributeValue);
@@ -138,6 +144,10 @@ export default function User() {
           setUsers(users.map(value => (value._id === formId ? res.data : value)));
           setSuccess(true);
         })
+        .catch(err => {
+          setFailed(true);
+          setMessage(err.message);
+        })
       } else {
         axios.post(`${REACT_APP_API_URL}/users`, values)
         .then(res => {
@@ -146,6 +156,10 @@ export default function User() {
           setValues({ ...values, ...initialStateForm });
           setSuccess(true);
           clearForm();
+        })
+        .catch(err => {
+          setFailed(true);
+          setMessage(err.message);
         })
       }
     };
@@ -169,6 +183,11 @@ export default function User() {
             {success && (
             <Alert style={{"marginTop":"10px"}} variant="success">
               Save data success!
+            </Alert>
+            )}
+            {failed && (
+            <Alert style={{"marginTop":"10px"}} variant="danger">
+              {message}
             </Alert>
             )}
             <Portlet>

@@ -175,6 +175,12 @@ export default function Attribute() {
                       label="Show For Channel"
                       labelPlacement="end"
                   />
+                  <FormControlLabel
+                      value="event"
+                      control={<Radio color="primary" />}
+                      label="Show For Event"
+                      labelPlacement="end"
+                  />
                   </RadioGroup>
 
                   <RadioGroup

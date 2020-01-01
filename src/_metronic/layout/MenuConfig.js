@@ -47,6 +47,12 @@ export default {
         ]
       },
       {
+        title: "Event",
+        root: true,
+        alignment: "left",
+        page: "event"
+      },
+      {
         title: "Setting",
         root: true,
         alignment: "left",

@@ -22,7 +22,7 @@ import {
 import { Alert } from "react-bootstrap";
 import axios from "axios";
 
-const { REACT_APP_API_URL } = process.env;
+const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -465,7 +465,7 @@ export default function ContentListPage() {
                           <td style={style.rowTable}>{value.title}</td>
                           <td style={style.rowTable}>{value.description}</td>
                           <td style={style.rowTable}>{value.type}</td>
-                          <td style={style.rowTable}><Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${value.image}`} thumbnail /></td>
+                      <td style={style.rowTable}>{value.image && <Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
                           <td>
                             <Button onClick={() => {editContent(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit

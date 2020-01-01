@@ -13,7 +13,7 @@ import {
 import { Alert } from "react-bootstrap";
 import axios from "axios";
 
-const { REACT_APP_API_URL } = process.env;
+const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -67,7 +67,7 @@ export default function Setting() {
     const checkMimeType = (event )=> {
         let files = event.target.files;
         let err = '';
-        const types = ['image/png', 'image/jpeg', 'image/gif'];
+        const types = ['image/png', 'image/jpeg', 'image/gif', 'application/zip'];
         for(let x = 0; x<files.length; x++) {
           if (types.every(type => files[x].type !== type)) {
             err += files[x].type+' is not a supported format\n';
@@ -263,9 +263,9 @@ export default function Setting() {
                     {
                       settings.map((value, index) => (
                         <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td>
+                          <td style={style.rowTable}>{(index + 1)}</td> 
                           <td style={style.rowTable}>{value.title}</td>
-                          <td style={style.rowTable}><Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${value.image}`} thumbnail /></td>
+                      <td style={style.rowTable}>{value.image && <Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
                           <td>
                             <Button onClick={() => {editSetting(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
