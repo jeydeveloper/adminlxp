@@ -1,6 +1,8 @@
 import React from "react";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
-export default class HMenuItemInner extends React.Component {
+class HMenuItemInner extends React.Component {
 
   itemCssClassWithBullet(item, parentItem) {
     if (item.bullet) {
@@ -32,7 +34,8 @@ export default class HMenuItemInner extends React.Component {
               <>
                 <span className="kt-menu__item-here"/>
                 {/* menu item title text */}
-                <span className="kt-menu__link-text">{item.title}</span>
+          {item.translate ? (<span className="kt-menu__link-text"><FormattedMessage id={item.translate} /></span>) : (<span className="kt-menu__link-text">{item.title}</span>) }
+
               </>
           ) : (
               <>
@@ -49,3 +52,9 @@ export default class HMenuItemInner extends React.Component {
     );
   }
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(HMenuItemInner)
+);

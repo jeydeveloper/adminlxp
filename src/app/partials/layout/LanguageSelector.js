@@ -7,34 +7,14 @@ import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggl
 
 const languages = [
   {
+    lang: "id",
+    name: "Indonesia",
+    flag: toAbsoluteUrl("/media/flags/263-indonesia.svg")
+  },
+  {
     lang: "en",
     name: "English",
     flag: toAbsoluteUrl("/media/flags/260-united-kingdom.svg")
-  },
-  {
-    lang: "zh",
-    name: "Mandarin",
-    flag: toAbsoluteUrl("/media/flags/034-china.svg")
-  },
-  {
-    lang: "es",
-    name: "Spanish",
-    flag: toAbsoluteUrl("/media/flags/128-spain.svg")
-  },
-  {
-    lang: "ja",
-    name: "Japanese",
-    flag: toAbsoluteUrl("/media/flags/063-japan.svg")
-  },
-  {
-    lang: "de",
-    name: "German",
-    flag: toAbsoluteUrl("/media/flags/162-germany.svg")
-  },
-  {
-    lang: "fr",
-    name: "French",
-    flag: toAbsoluteUrl("/media/flags/195-france.svg")
   }
 ];
 

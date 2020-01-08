@@ -13,19 +13,22 @@ export default {
         title: "User",
         root: true,
         alignment: "left",
-        page: "user"
+        page: "user",
+        translate: "MENU.USER"
       },
       {
         title: "Attribute",
         root: true,
         alignment: "left",
-        page: "attribute"
+        page: "attribute",
+        translate: "MENU.ATTRIBUTE"
       },
       {
         title: "Audience",
         root: true,
         alignment: "left",
-        page: "audience"
+        page: "audience",
+        translate: "MENU.AUDIENCE"
       },
       {
         title: "Content",
@@ -33,6 +36,7 @@ export default {
         alignment: "left",
         toggle: "click",
         page: "content",
+        translate: "MENU.CONTENT",
         submenu: [
           {
             title: "List Content",
@@ -50,13 +54,15 @@ export default {
         title: "Event",
         root: true,
         alignment: "left",
-        page: "event"
+        page: "event",
+        translate: "MENU.EVENT"
       },
       {
         title: "Setting",
         root: true,
         alignment: "left",
-        page: "setting"
+        page: "setting",
+        translate: "MENU.SETTING"
       },
       {
         title: "Material UI",
