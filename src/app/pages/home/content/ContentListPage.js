@@ -21,6 +21,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -52,7 +54,7 @@ const style = {
   }
 };
                   
-export default function ContentListPage() {
+function ContentListPage() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -278,7 +280,7 @@ export default function ContentListPage() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-title"
-                    label="Title"
+                    label={<FormattedMessage id="CONTENT.NAME" />}
                     value={values.title}
                     onChange={handleChange("title")}
                     margin="normal"
@@ -287,7 +289,7 @@ export default function ContentListPage() {
                   />
                   <TextField
                     id="standard-description"
-                    label="Description"
+                    label={<FormattedMessage id="CONTENT.DESCRIPTION" />}
                     value={values.description}
                     onChange={handleChange("description")}
                     margin="normal"
@@ -306,32 +308,32 @@ export default function ContentListPage() {
                   <FormControlLabel
                       value="Course"
                       control={<Radio color="primary" />}
-                      label="Course"
+                      label={<FormattedMessage id="CONTENT.TYPECOURSE" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="Video"
                       control={<Radio color="primary" />}
-                      label="Video"
+                      label={<FormattedMessage id="CONTENT.TYPEVIDEO" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="Document"
                       control={<Radio color="primary" />}
-                      label="Document"
+                      label={<FormattedMessage id="CONTENT.TYPEDOCUMENT" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="HTMLResource"
                       control={<Radio color="primary" />}
-                      label="HTML Resource"
+                      label={<FormattedMessage id="CONTENT.TYPEHTMLRESOURCE" />}
                       labelPlacement="end"
                   />
                   </RadioGroup>
                   
                   <TextField
                     id="standard-source"
-                    label="Source"
+                    label={<FormattedMessage id="CONTENT.SOURCE" />}
                     value={values.source}
                     onChange={handleChange("source")}
                     margin="normal"
@@ -450,11 +452,11 @@ export default function ContentListPage() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Title</th>
-                      <th>Description</th>
-                      <th>Type</th>
-                      <th>Image</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="CONTENT.NAME" /></th>
+                      <th><FormattedMessage id="CONTENT.DESCRIPTION" /></th>
+                      <th><FormattedMessage id="CONTENT.TYPE" /></th>
+                      <th><FormattedMessage id="CONTENT.IMAGE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -492,3 +494,9 @@ export default function ContentListPage() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(ContentListPage)
+);

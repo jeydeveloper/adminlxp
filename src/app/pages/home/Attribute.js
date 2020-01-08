@@ -15,6 +15,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -34,7 +36,7 @@ const style = {
   }
 };
                   
-export default function Attribute() {
+function Attribute() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -267,11 +269,11 @@ export default function Attribute() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Name</th>
-                      <th>Show For</th>
-                      <th>Type</th>
-                      <th>Value</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="ATTRIBUTE.NAME" /></th>
+                      <th><FormattedMessage id="ATTRIBUTE.SHOWFOR" /></th>
+                      <th><FormattedMessage id="ATTRIBUTE.TYPE" /></th>
+                      <th><FormattedMessage id="ATTRIBUTE.VALUE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -309,3 +311,9 @@ export default function Attribute() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(Attribute)
+);

@@ -18,6 +18,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -50,7 +52,7 @@ const style = {
   }
 };
                   
-export default function User() {
+function User() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -195,7 +197,7 @@ export default function User() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-fullname"
-                    label="Fullname"
+                    label={<FormattedMessage id="USER.FULLNAME" />}
                     value={values.fullname}
                     onChange={handleChange("fullname")}
                     margin="normal"
@@ -204,7 +206,7 @@ export default function User() {
                   />
                   <TextField
                     id="standard-username"
-                    label="Username"
+                    label={<FormattedMessage id="USER.USERNAME" />}
                     value={values.username}
                     onChange={handleChange("username")}
                     margin="normal"
@@ -213,7 +215,7 @@ export default function User() {
                   />
                   <TextField
                     id="standard-email"
-                    label="Email"
+                    label={<FormattedMessage id="USER.EMAIL" />}
                     value={values.email}
                     onChange={handleChange("email")}
                     margin="normal"
@@ -225,7 +227,7 @@ export default function User() {
                       <TextField
                         id="standard-password"
                         type="password"
-                        label="Password"
+                        label={<FormattedMessage id="USER.PASSWORD" />}
                         value={values.password}
                         onChange={handleChange("password")}
                         margin="normal"
@@ -345,10 +347,10 @@ export default function User() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Fullname</th>
-                      <th>Username</th>
-                      <th>Email</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="USER.FULLNAME" /></th>
+                      <th><FormattedMessage id="USER.USERNAME" /></th>
+                      <th><FormattedMessage id="USER.EMAIL" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -385,3 +387,9 @@ export default function User() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(User)
+);

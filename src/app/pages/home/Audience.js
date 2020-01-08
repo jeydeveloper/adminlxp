@@ -22,6 +22,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -54,7 +56,7 @@ const style = {
   }
 };
                   
-export default function Audience() {
+function Audience() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -235,7 +237,7 @@ export default function Audience() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-name"
-                    label="name"
+                    label={<FormattedMessage id="AUDIENCE.NAME" />}
                     value={values.name}
                     onChange={handleChange("name")}
                     margin="normal"
@@ -253,13 +255,13 @@ export default function Audience() {
                   <FormControlLabel
                       value="attribute"
                       control={<Radio color="primary" />}
-                      label="Attribute User"
+                      label={<FormattedMessage id="AUDIENCE.TYPEATTRIBUTEUSER" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="individual"
                       control={<Radio color="primary" />}
-                      label="Individual User"
+                      label={<FormattedMessage id="AUDIENCE.TYPEINDIVIDUALUSER" />}
                       labelPlacement="end"
                   />
                   </RadioGroup>
@@ -418,9 +420,9 @@ export default function Audience() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="AUDIENCE.NAME" /></th>
+                      <th><FormattedMessage id="AUDIENCE.TYPE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -456,3 +458,9 @@ export default function Audience() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(Audience)
+);

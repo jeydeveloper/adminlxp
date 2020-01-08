@@ -18,6 +18,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -49,7 +51,7 @@ const style = {
   }
 };
                   
-export default function ChannelListPage() {
+function ChannelListPage() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -296,7 +298,7 @@ export default function ChannelListPage() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-title"
-                    label="Title"
+                    label={<FormattedMessage id="CHANNEL.NAME" />}
                     value={values.title}
                     onChange={handleChange("title")}
                     margin="normal"
@@ -305,7 +307,7 @@ export default function ChannelListPage() {
                   />
                   <TextField
                     id="standard-description"
-                    label="Description"
+                    label={<FormattedMessage id="CHANNEL.DESCRIPTION" />}
                     value={values.description}
                     onChange={handleChange("description")}
                     margin="normal"
@@ -393,7 +395,7 @@ export default function ChannelListPage() {
                   }
 
                   <FormControl className={classes.formControl}>
-                      <InputLabel htmlFor="select-multiple-chip">Select Content</InputLabel>
+                      <InputLabel htmlFor="select-multiple-chip"><FormattedMessage id="CHANNEL.SELECTCONTENT" /></InputLabel>
                       <Select
                         multiple
                         value={contentValue || []}
@@ -452,10 +454,10 @@ export default function ChannelListPage() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Title</th>
-                      <th>Description</th>
-                      <th>Image</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="CHANNEL.NAME" /></th>
+                      <th><FormattedMessage id="CHANNEL.DESCRIPTION" /></th>
+                      <th><FormattedMessage id="CHANNEL.IMAGE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -492,3 +494,9 @@ export default function ChannelListPage() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(ChannelListPage)
+);

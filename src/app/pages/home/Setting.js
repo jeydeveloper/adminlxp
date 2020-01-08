@@ -12,6 +12,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -31,7 +33,7 @@ const style = {
   }
 };
                   
-export default function Setting() {
+function Setting() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -210,7 +212,7 @@ export default function Setting() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-title"
-                    label="title"
+                    label={<FormattedMessage id="SETTING.NAME" />}
                     value={values.title}
                     onChange={handleChange("title")}
                     margin="normal"
@@ -254,9 +256,9 @@ export default function Setting() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Name</th>
-                      <th>Image</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="SETTING.NAME" /></th>
+                      <th><FormattedMessage id="SETTING.IMAGE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -289,3 +291,9 @@ export default function Setting() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(Setting)
+);

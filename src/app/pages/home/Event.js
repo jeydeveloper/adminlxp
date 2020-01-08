@@ -19,6 +19,8 @@ import {
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
+import { FormattedMessage, injectIntl } from "react-intl";
+import { connect } from "react-redux";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -51,7 +53,7 @@ const style = {
   }
 };
                   
-export default function Event() {
+function Event() {
     const classes = useStyles();
 
     const initialStateForm = {
@@ -283,7 +285,7 @@ export default function Event() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-title"
-                    label="Title"
+                    label={<FormattedMessage id="EVENT.NAME" />}
                     value={values.title}
                     onChange={handleChange("title")}
                     margin="normal"
@@ -293,7 +295,7 @@ export default function Event() {
 
                   <TextField
                     id="standard-description"
-                    label="Description"
+                    label={<FormattedMessage id="EVENT.DESCRIPTION" />}
                     value={values.description}
                     onChange={handleChange("description")}
                     margin="normal"
@@ -303,7 +305,7 @@ export default function Event() {
 
                   <TextField
                     id="standard-short-description"
-                    label="Short Description"
+                    label={<FormattedMessage id="EVENT.SHORTDESCRIPTION" />}
                     value={values.short_description}
                     onChange={handleChange("short_description")}
                     margin="normal"
@@ -313,7 +315,7 @@ export default function Event() {
 
                   <TextField
                     id="standard-event-url"
-                    label="Event URL"
+                    label={<FormattedMessage id="EVENT.EVENTURL" />}
                     value={values.event_url}
                     onChange={handleChange("event_url")}
                     margin="normal"
@@ -325,7 +327,7 @@ export default function Event() {
                         id="standard-start-date"
                         value={values.start_date}
                         type="date"
-                        label="Start Date"
+                        label={<FormattedMessage id="EVENT.STARTDATE" />}
                         onChange={handleChange("start_date")}
                         margin="normal"
                         fullWidth
@@ -338,7 +340,7 @@ export default function Event() {
                         id="standard-end-date"
                         value={values.end_date}
                         type="date"
-                        label="End Date"
+                        label={<FormattedMessage id="EVENT.ENDDATE" />}
                         onChange={handleChange("end_date")}
                         margin="normal"
                         fullWidth
@@ -349,7 +351,7 @@ export default function Event() {
 
                     <TextField
                         id="standard-keynote-speaker"
-                        label="Keynote Speaker"
+                        label={<FormattedMessage id="EVENT.KEYNOTESPEAKER" />}
                         value={values.keynote_speaker}
                         onChange={handleChange("keynote_speaker")}
                         margin="normal"
@@ -471,9 +473,9 @@ export default function Event() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Name</th>
-                      <th>Image</th>
-                      <th>Action</th>
+                      <th><FormattedMessage id="EVENT.NAME" /></th>
+                      <th><FormattedMessage id="EVENT.IMAGE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -509,3 +511,9 @@ export default function Event() {
       </>
     );
 }
+
+export default injectIntl(
+  connect(
+    null
+  )(Event)
+);
