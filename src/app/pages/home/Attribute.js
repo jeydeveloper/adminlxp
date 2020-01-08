@@ -144,7 +144,7 @@ function Attribute() {
                 <form style={style.fullWidth} noValidate autoComplete="off">
                   <TextField
                     id="standard-name"
-                    label="name"
+                    label={<FormattedMessage id="ATTRIBUTE.NAME" />}
                     value={values.name}
                     onChange={handleChange("name")}
                     margin="normal"
@@ -162,25 +162,25 @@ function Attribute() {
                   <FormControlLabel
                       value="user"
                       control={<Radio color="primary" />}
-                      label="Show For User"
+                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORUSER" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="content"
                       control={<Radio color="primary" />}
-                      label="Show For Content"
+                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORCONTENT" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="channel"
                       control={<Radio color="primary" />}
-                      label="Show For Channel"
+                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORCHANNEL" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="event"
                       control={<Radio color="primary" />}
-                      label="Show For Event"
+                      label={<FormattedMessage id="ATTRIBUTE.SHOWFOREVENT" />}
                       labelPlacement="end"
                   />
                   </RadioGroup>
@@ -196,25 +196,25 @@ function Attribute() {
                   <FormControlLabel
                       value="list"
                       control={<Radio color="primary" />}
-                      label="List"
+                      label={<FormattedMessage id="ATTRIBUTE.TYPELIST" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="multiselect"
                       control={<Radio color="primary" />}
-                      label="Multiselect"
+                      label={<FormattedMessage id="ATTRIBUTE.TYPEMULTISELECT" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="date"
                       control={<Radio color="primary" />}
-                      label="Date"
+                      label={<FormattedMessage id="ATTRIBUTE.TYPEDATE" />}
                       labelPlacement="end"
                   />
                   <FormControlLabel
                       value="text"
                       control={<Radio color="primary" />}
-                      label="Text"
+                      label={<FormattedMessage id="ATTRIBUTE.TYPETEXT" />}
                       labelPlacement="end"
                   />
                   </RadioGroup>
