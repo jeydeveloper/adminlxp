@@ -18,8 +18,7 @@ import {
   FormControlLabel,
   RadioGroup,
   Radio,
-  FormLabel,
-  FormGroup
+  FormLabel
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
