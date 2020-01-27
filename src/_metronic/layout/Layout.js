@@ -14,7 +14,6 @@ import AsideLeft from "./aside/AsideLeft";
 import SubHeader from "./sub-header/SubHeader";
 import QuickPanel from "../../app/partials/layout/QuickPanel";
 import KtContent from "./KtContent";
-import("./assets/Base.scss");
 
 const styles = [];
 const htmlClassService = new HTMLClassService();

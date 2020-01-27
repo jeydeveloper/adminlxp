@@ -98,7 +98,7 @@ function ChannelListPage() {
       async function fetchDataAttribute() {
         axios.get(`${REACT_APP_API_URL}/attributes`)
         .then(res => {
-          setAttributes(res.data.filter(value => value.show_for === "channel"));
+          setAttributes(res.data.filter(value => value.show_for_channel));
         })
       }
       fetchDataAttribute();

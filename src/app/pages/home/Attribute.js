@@ -11,7 +11,11 @@ import {
   TextField,
   FormControlLabel,
   RadioGroup,
-  Radio
+  Radio,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  FormGroup
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -27,87 +31,96 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const style = {
-  rowTable: {"verticalAlign":"middle"},
-  fullWidth: {width: "100%"},
-  textAlignCenter: {"textAlign": "center"},
+  rowTable: { "verticalAlign": "middle" },
+  fullWidth: { width: "100%" },
+  textAlignCenter: { "textAlign": "center" },
   marginTopBottom: {
-    marginTop: "16px", 
+    marginTop: "16px",
     marginBottom: "8px"
   }
 };
-                  
+
 function Attribute() {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const initialStateForm = {
-      "name": "",
-      "show_for": "",
-      "type": "",
-      "value": []
-    };
-    const [success, setSuccess] = useState(null);
-    const [form, setForm] = useState(null);
-    const [attributes, setAttributes] = useState([]);
-    const [values, setValues] = useState(initialStateForm);
-    const [formId, setFormId] = useState(false);
-    const [listValue, setListValue] = useState([]);
+  const initialStateForm = {
+    "name": "",
+    "show_for_user": false,
+    "show_for_content": false,
+    "show_for_channel": false,
+    "show_for_event": false,
+    "type": "",
+    "mandatory": false,
+    "value": []
+  };
+  const [success, setSuccess] = useState(null);
+  const [form, setForm] = useState(null);
+  const [attributes, setAttributes] = useState([]);
+  const [values, setValues] = useState(initialStateForm);
+  const [formId, setFormId] = useState(false);
+  const [listValue, setListValue] = useState([]);
 
-    useEffect(() => {
-      async function fetchData() {
-        axios.get(`${REACT_APP_API_URL}/attributes`)
+  useEffect(() => {
+    async function fetchData() {
+      axios.get(`${REACT_APP_API_URL}/attributes`)
         .then(res => {
           // console.log(res);
           setAttributes(res.data)
         })
-      }
-      fetchData();
-    }, []);
+    }
+    fetchData();
+  }, []);
 
-    const editAttribute = (attribute) => {
-      setValues({ ...values, ...attribute });
-      setForm(true);
-      setFormId(attribute._id);
-      setListValue(attribute.value);
-    };
+  const editAttribute = (attribute) => {
+    setValues({ ...values, ...attribute });
+    setForm(true);
+    setFormId(attribute._id);
+    setListValue(attribute.value);
+  };
 
-    const deleteAttribute = (attribute) => {
-      axios.delete(`${REACT_APP_API_URL}/attributes/${attribute._id}`)
+  const deleteAttribute = (attribute) => {
+    axios.delete(`${REACT_APP_API_URL}/attributes/${attribute._id}`)
       .then(res => {
         setAttributes(attributes.filter(value => value._id !== attribute._id));
       })
-    };
-    
-    const handleChange = name => event => {
+  };
+
+  const handleChange = name => event => {
+    if (["mandatory", "show_for_user", "show_for_content", "show_for_channel", "show_for_event"].find(value => value === name)) {
+      setValues({ ...values, [name]: event.target.checked });
+    } else {
       setValues({ ...values, [name]: event.target.value });
-      if(event.target.value === "date" || event.target.value === "text") {
-        setListValue([]);
-      }
-      if(event.target.value === "list" || event.target.value === "multiselect") {
-        setListValue([""]);
-      }
-    };
+    }
 
-    const handleMultiValueChange = index => event => {
-        let tmp = [...values.value, event.target.value];
-        setValues({ ...values, "value": tmp });
-        listValue[index] = event.target.value;
-      };
+    if (event.target.value === "date" || event.target.value === "text") {
+      setListValue([]);
+    }
+    if (event.target.value === "list" || event.target.value === "multiselect") {
+      setListValue([""]);
+    }
+  };
 
-    const addAttribute = () => {
-      setValues({ ...values, ...initialStateForm });
-      setForm(true);
-    };
+  const handleMultiValueChange = index => event => {
+    let tmp = [...values.value, event.target.value];
+    setValues({ ...values, "value": tmp });
+    listValue[index] = event.target.value;
+  };
 
-    const saveForm = () => {
-        values.value = listValue;
-      if(formId) {
-        axios.put(`${REACT_APP_API_URL}/attributes/${formId}`, values)
+  const addAttribute = () => {
+    setValues({ ...values, ...initialStateForm });
+    setForm(true);
+  };
+
+  const saveForm = () => {
+    values.value = listValue;
+    if (formId) {
+      axios.put(`${REACT_APP_API_URL}/attributes/${formId}`, values)
         .then(res => {
           setAttributes(attributes.map(value => (value._id === formId ? res.data : value)));
           setSuccess(true);
         })
-      } else {
-        axios.post(`${REACT_APP_API_URL}/attributes`, values)
+    } else {
+      axios.post(`${REACT_APP_API_URL}/attributes`, values)
         .then(res => {
           values._id = res.data._id;
           setAttributes([...attributes, values]);
@@ -115,144 +128,196 @@ function Attribute() {
           setSuccess(true);
           setListValue([]);
         })
-      }
-    };
+    }
+  };
 
-    const doneForm = () => {
-      setForm(false);
-      setSuccess(false);
-      setFormId(null);
-      setListValue([]);
-    };
+  const doneForm = () => {
+    setForm(false);
+    setSuccess(false);
+    setFormId(null);
+    setListValue([]);
+  };
 
-    const addNewValue = () => {
-        setListValue([...listValue, ""]);
-    };
+  const addNewValue = () => {
+    setListValue([...listValue, ""]);
+  };
 
-    return (
-      <>
-        {form && 
-          <div className="row">
-            <div className="col-md-12">
+  return (
+    <>
+      {form &&
+        <div className="row">
+          <div className="col-md-12">
             {success && (
-            <Alert style={{"marginTop":"10px"}} variant="success">
-              Save data success!
+              <Alert style={{ "marginTop": "10px" }} variant="success">
+                Save data success!
             </Alert>
             )}
             <Portlet>
               <PortletBody fluid={true}>
                 <form style={style.fullWidth} noValidate autoComplete="off">
-                  <TextField
-                    id="standard-name"
-                    label={<FormattedMessage id="ATTRIBUTE.NAME" />}
-                    value={values.name}
-                    onChange={handleChange("name")}
-                    margin="normal"
-                    fullWidth
-                    required
-                  />
-                  <RadioGroup
-                  aria-label="show_for"
-                  name="show_for"
-                  value={values.show_for}
-                  onChange={handleChange("show_for")}
-                  row
-                  style={style.marginTopBottom}
-                  >
-                  <FormControlLabel
-                      value="user"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORUSER" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="content"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORCONTENT" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="channel"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.SHOWFORCHANNEL" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="event"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.SHOWFOREVENT" />}
-                      labelPlacement="end"
-                  />
-                  </RadioGroup>
-
-                  <RadioGroup
-                  aria-label="type"
-                  name="type"
-                  value={values.type}
-                  onChange={handleChange("type")}
-                  row
-                  style={style.marginTopBottom}
-                  >
-                  <FormControlLabel
-                      value="list"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.TYPELIST" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="multiselect"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.TYPEMULTISELECT" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="date"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.TYPEDATE" />}
-                      labelPlacement="end"
-                  />
-                  <FormControlLabel
-                      value="text"
-                      control={<Radio color="primary" />}
-                      label={<FormattedMessage id="ATTRIBUTE.TYPETEXT" />}
-                      labelPlacement="end"
-                  />
-                  </RadioGroup>
-                  {
-                      listValue.map((value, index) => (
-                      <TextField
-                      key={index}
-                      id={`standard-value-${index}`}
-                      label={`Value ${(index + 1)}`}
-                      value={value}
-                      onChange={handleMultiValueChange(index)}
+                  <div className="kt-section__content">
+                    <TextField
+                      id="standard-name"
+                      label={<FormattedMessage id="ATTRIBUTE.NAME" />}
+                      value={values.name}
+                      onChange={handleChange("name")}
                       margin="normal"
                       fullWidth
                       required
                     />
-                  ))
+                  </div>
+
+                  <div className="kt-section__content">
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Show For?</FormLabel>
+                      <FormGroup
+                        aria-label="show-for"
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={values.show_for_user}
+                              onChange={handleChange("show_for_user")}
+                              value="1"
+                              color="primary"
+                            />
+                          }
+                          label="Show For User"
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={values.show_for_content}
+                              onChange={handleChange("show_for_content")}
+                              value="1"
+                              color="primary"
+                            />
+                          }
+                          label="Show For Content"
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={values.show_for_channel}
+                              onChange={handleChange("show_for_channel")}
+                              value="1"
+                              color="primary"
+                            />
+                          }
+                          label="Show For Channel"
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={values.show_for_event}
+                              onChange={handleChange("show_for_event")}
+                              value="1"
+                              color="primary"
+                            />
+                          }
+                          label="Show For Event"
+                        />
+                      </FormGroup>
+                    </FormControl>
+                  </div>
+
+                  <div className="kt-section__content">
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Is Mandatory?</FormLabel>
+                      <FormGroup
+                        aria-label="show-for"
+                        row
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={values.mandatory}
+                              onChange={handleChange("mandatory")}
+                              value="1"
+                              color="primary"
+                            />
+                          }
+                          label="Mandatory"
+                        />
+                      </FormGroup>
+                    </FormControl>
+                  </div>
+
+                  <div className="kt-section__content">
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Choose type of attribute</FormLabel>
+                      <RadioGroup
+                        aria-label="type"
+                        name="type"
+                        value={values.type}
+                        onChange={handleChange("type")}
+                        row
+                      >
+                        <FormControlLabel
+                          value="list"
+                          control={<Radio color="primary" />}
+                          label={<FormattedMessage id="ATTRIBUTE.TYPELIST" />}
+                          labelPlacement="end"
+                        />
+                        <FormControlLabel
+                          value="multiselect"
+                          control={<Radio color="primary" />}
+                          label={<FormattedMessage id="ATTRIBUTE.TYPEMULTISELECT" />}
+                          labelPlacement="end"
+                        />
+                        <FormControlLabel
+                          value="date"
+                          control={<Radio color="primary" />}
+                          label={<FormattedMessage id="ATTRIBUTE.TYPEDATE" />}
+                          labelPlacement="end"
+                        />
+                        <FormControlLabel
+                          value="text"
+                          control={<Radio color="primary" />}
+                          label={<FormattedMessage id="ATTRIBUTE.TYPETEXT" />}
+                          labelPlacement="end"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </div>
+
+                  {
+                    listValue.map((value, index) => (
+                      <div className="kt-section__content">
+                        <TextField
+                          key={index}
+                          id={`standard-value-${index}`}
+                          label={`Value ${(index + 1)}`}
+                          value={value}
+                          onChange={handleMultiValueChange(index)}
+                          margin="normal"
+                          fullWidth
+                          required
+                        />
+                      </div>
+                    ))
                   }
                 </form>
               </PortletBody>
             </Portlet>
-            </div>
-            <div className="col-md-12">
-              <div style={style.textAlignCenter}>
-                <Button onClick={() => {addNewValue()}} color="primary" variant="contained" className={classes.button}>
-                  Add New Value
+          </div>
+          <div className="col-md-12">
+            <div style={style.textAlignCenter}>
+              <Button onClick={() => { addNewValue() }} color="primary" variant="contained" className={classes.button}>
+                Add New Value
                 </Button>
-                <Button onClick={saveForm} color="primary" variant="contained" className={classes.button}>
-                  Save Data
+              <Button onClick={saveForm} color="primary" variant="contained" className={classes.button}>
+                Save Data
                 </Button>
-                <Button onClick={doneForm} variant="contained" className={classes.button}>
-                  Done
+              <Button onClick={doneForm} variant="contained" className={classes.button}>
+                Done
                 </Button>
-              </div>
             </div>
           </div>
-        }
+        </div>
+      }
 
-        {!form && 
+      {!form &&
         <div className="row">
           <div className="col-md-12">
             <Portlet>
@@ -270,7 +335,6 @@ function Attribute() {
                     <tr>
                       <th>#</th>
                       <th><FormattedMessage id="ATTRIBUTE.NAME" /></th>
-                      <th><FormattedMessage id="ATTRIBUTE.SHOWFOR" /></th>
                       <th><FormattedMessage id="ATTRIBUTE.TYPE" /></th>
                       <th><FormattedMessage id="ATTRIBUTE.VALUE" /></th>
                       <th><FormattedMessage id="LABEL.ACTION" /></th>
@@ -282,14 +346,13 @@ function Attribute() {
                         <tr key={index}>
                           <td style={style.rowTable}>{(index + 1)}</td>
                           <td style={style.rowTable}>{value.name}</td>
-                          <td style={style.rowTable}>{value.show_for}</td>
                           <td style={style.rowTable}>{value.type}</td>
                           <td style={style.rowTable}>{value.value.join(", ")}</td>
                           <td>
-                            <Button onClick={() => {editAttribute(value)}} color="primary" variant="contained" className={classes.button}>
+                            <Button onClick={() => { editAttribute(value) }} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                             <Button onClick={() => {deleteAttribute(value)}} variant="contained" className={classes.button}>
+                            <Button onClick={() => { deleteAttribute(value) }} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -307,9 +370,9 @@ function Attribute() {
             </Portlet>
           </div>
         </div>
-        }
-      </>
-    );
+      }
+    </>
+  );
 }
 
 export default injectIntl(
