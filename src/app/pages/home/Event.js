@@ -1,6 +1,6 @@
-import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { format } from 'date-fns'
-import { Image } from "react-bootstrap";
+import { Image, Table } from "react-bootstrap";
 import {
   Portlet,
   PortletBody,
@@ -21,7 +21,6 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
-import DataTable from 'react-data-table-component';
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -109,7 +108,7 @@ function Event() {
     fetchDataAttribute();
   }, []);
 
-  const editEvent = useCallback((event) => {
+  const editEvent = (event) => {
     if (event.start_date) {
       event.start_date = format(new Date(event.start_date), 'yyyy-MM-dd');
     }
@@ -120,14 +119,14 @@ function Event() {
     setForm(true);
     setFormId(event._id);
     setAttributeValue(event.attribute.map(value => value.attribute_value));
-  }, [values]);
+  };
 
-  const deleteEvent = useCallback((event) => {
+  const deleteEvent = (event) => {
     axios.delete(`${REACT_APP_API_URL}/events/${event._id}`)
       .then(res => {
         setEvents(events.filter(value => value._id !== event._id));
       })
-  }, [events]);
+  };
 
   const checkMimeType = (event) => {
     let files = event.target.files;
@@ -265,27 +264,6 @@ function Event() {
     setImages(null);
     setAttributeValue([]);
   };
-
-  const columns = useMemo(() => [
-    {
-      name: <FormattedMessage id="EVENT.NAME" />,
-      selector: 'title',
-      sortable: true,
-      width: '40%'
-    },
-    {
-      name: <FormattedMessage id="EVENT.IMAGE" />,
-      selector: 'image',
-      cell: row => row.image ? <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${row.image}`} thumbnail /> : '',
-      width: '30%'
-    },
-    {
-      name: <FormattedMessage id="LABEL.ACTION" />,
-      button: true,
-      cell: row => <Fragment><Button onClick={() => { editEvent(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { deleteEvent(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
-      width: '30%'
-    },
-  ], [editEvent, deleteEvent, classes.button]);
 
   return (
     <>
@@ -491,11 +469,40 @@ function Event() {
                 }
               />
               <PortletBody fluid={true}>
-                <DataTable
-                  noHeader
-                  columns={columns}
-                  data={events}
-                />
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th><FormattedMessage id="EVENT.NAME" /></th>
+                      <th><FormattedMessage id="EVENT.IMAGE" /></th>
+                      <th><FormattedMessage id="LABEL.ACTION" /></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      events.map((value, index) => (
+                        <tr key={index}>
+                          <td style={style.rowTable}>{(index + 1)}</td>
+                          <td style={style.rowTable}>{value.title}</td>
+                          <td style={style.rowTable}>{value.image && <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
+                          <td>
+                            <Button onClick={() => { editEvent(value) }} color="primary" variant="contained" className={classes.button}>
+                              Edit
+                            </Button>
+                            <Button onClick={() => { deleteEvent(value) }} variant="contained" className={classes.button}>
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    }
+                    {events.length === 0 && (
+                      <tr>
+                        <td colSpan="4">Data is empty</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
               </PortletBody>
             </Portlet>
           </div>
