@@ -63,6 +63,15 @@ function User() {
     "attribute": [],
   };
 
+  const initialStateError = {
+    "fullname": false,
+    "username": false,
+    "email": false,
+    "password": false
+  };
+
+  const requiredInput = ["fullname", "username", "email", "password"];
+
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {
@@ -79,9 +88,12 @@ function User() {
   const [form, setForm] = useState(null);
   const [users, setUsers] = useState([]);
   const [values, setValues] = useState(initialStateForm);
+  const [valuesError, setValuesError] = useState(initialStateError);
   const [formId, setFormId] = useState(false);
   const [attributes, setAttributes] = useState([]);
   const [attributeValue, setAttributeValue] = useState([]);
+  const [attributeValueError, setAttributeValueError] = useState([]);
+  const [attributeValueRequired, setAttributeValueRequired] = useState([]);
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -96,7 +108,9 @@ function User() {
     async function fetchDataAttribute() {
       axios.get(`${REACT_APP_API_URL}/attributes`)
         .then(res => {
-          setAttributes(res.data.filter(value => value.show_for_user));
+          let dataAttributes = res.data.filter(value => value.show_for_user);
+          setAttributes(dataAttributes);
+          setAttributeValueRequired(dataAttributes.map(value => (value.mandatory ? true : false)));
         })
     }
     fetchDataAttribute();
@@ -118,16 +132,32 @@ function User() {
 
   const handleChange = name => event => {
     setFailed(false);
+    setSuccess(false);
     setMessage(null);
     setValues({ ...values, [name]: event.target.value });
+    if (requiredInput.includes(name)) {
+      if ((!event.target.value && name !== "password") || (!formId && name === "password" && !event.target.value)) {
+        setValuesError({ ...valuesError, [name]: true });
+      } else {
+        setValuesError({ ...valuesError, [name]: false });
+      }
+    }
   };
 
   const handleAttribute = index => event => {
     setFailed(false);
+    setSuccess(false);
     setMessage(null);
     let newAttributeValue = [...attributeValue];
     newAttributeValue[index] = event.target.value;
     setAttributeValue(newAttributeValue);
+    if (attributeValueRequired[index]) {
+      if (event.target.value) {
+        setAttributeValueError({ ...attributeValueError, [index]: false });
+      } else {
+        setAttributeValueError({ ...attributeValueError, [index]: true });
+      }
+    }
   };
 
   const addUser = () => {
@@ -135,11 +165,42 @@ function User() {
     setForm(true);
   };
 
+  const isValidInput = () => {
+    let result = true;
+    let errorRequiredInput = initialStateError;
+    for (let value of requiredInput) {
+      if (formId && value === "password") continue;
+      if (!values[value]) {
+        result = false;
+        errorRequiredInput[value] = true;
+      }
+    }
+    setValuesError({ ...valuesError, ...errorRequiredInput });
+
+    let errorRequiredInputAttribute = attributes.map((valAttribute, idxAttribute) => {
+      if (valAttribute.mandatory) {
+        if (attributeValue[idxAttribute]) {
+          return false;
+        } else {
+          result = false;
+          return true;
+        }
+      }
+      return false;
+    });
+    setAttributeValueError({ ...attributeValueError, ...errorRequiredInputAttribute });
+
+    return result;
+  }
+
   const saveForm = () => {
     values.attribute = attributes.map((valAttribute, idxAttribute) => ({
       "attribute_name": valAttribute.name,
       "attribute_value": (attributeValue[idxAttribute] || "")
     }));
+
+    if (!isValidInput()) return false;
+
     if (formId) {
       axios.put(`${REACT_APP_API_URL}/users/${formId}`, values)
         .then(res => {
@@ -175,6 +236,7 @@ function User() {
 
   const clearForm = () => {
     setValues(initialStateForm);
+    setValuesError(initialStateError);
     setAttributeValue([]);
   };
 
@@ -204,6 +266,7 @@ function User() {
                     margin="normal"
                     fullWidth
                     required
+                    error={valuesError.fullname}
                   />
                   <TextField
                     id="standard-username"
@@ -213,6 +276,7 @@ function User() {
                     margin="normal"
                     fullWidth
                     required
+                    error={valuesError.username}
                   />
                   <TextField
                     id="standard-email"
@@ -222,6 +286,7 @@ function User() {
                     margin="normal"
                     fullWidth
                     required
+                    error={valuesError.email}
                   />
 
                   <TextField
@@ -233,6 +298,7 @@ function User() {
                     margin="normal"
                     fullWidth
                     required
+                    error={valuesError.password}
                   />
 
                   {
@@ -249,6 +315,8 @@ function User() {
                             InputLabelProps={{
                               shrink: true
                             }}
+                            error={attributeValueError[idxAttribute] || false}
+                            required={attributeValueRequired[idxAttribute] || false}
                           />
                         }
                         {valAttribute.type === "text" &&
@@ -258,11 +326,13 @@ function User() {
                             onChange={handleAttribute(idxAttribute)}
                             margin="normal"
                             fullWidth
+                            error={attributeValueError[idxAttribute] || false}
+                            required={attributeValueRequired[idxAttribute] || false}
                           />
                         }
                         {valAttribute.type === "list" &&
                           <div>
-                            <FormControl className={classes.formControl}>
+                            <FormControl className={classes.formControl} error={attributeValueError[idxAttribute] || false} required={attributeValueRequired[idxAttribute] || false}>
                               <InputLabel>{valAttribute.name}</InputLabel>
                               <Select
                                 key={`sel2${idxAttribute}`}
@@ -280,7 +350,7 @@ function User() {
                         }
                         {valAttribute.type === "multiselect" &&
                           <div>
-                            <FormControl className={classes.formControl}>
+                            <FormControl className={classes.formControl} error={attributeValueError[idxAttribute] || false} required={attributeValueRequired[idxAttribute] || false}>
                               <InputLabel htmlFor="select-multiple-chip">{valAttribute.name}</InputLabel>
                               <Select
                                 multiple
