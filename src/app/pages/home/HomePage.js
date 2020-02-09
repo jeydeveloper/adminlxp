@@ -7,6 +7,7 @@ import Attribute from "./Attribute";
 import Audience from "./Audience";
 import Setting from "./Setting";
 import Event from "./Event";
+import Questioner from "./Questioner";
 import DocsPage from "./docs/DocsPage";
 import { LayoutSplashScreen } from "../../../_metronic";
 
@@ -36,6 +37,7 @@ export default function HomePage() {
         <Route path="/content" component={ContentPage} />
         <Route path="/setting" component={Setting} />
         <Route path="/event" component={Event} />
+        <Route path="/questioner" component={Questioner} />
         <Route path="/google-material" component={GoogleMaterialPage} />
         <Route path="/react-bootstrap" component={ReactBootstrapPage} />
         <Route path="/docs" component={DocsPage} />

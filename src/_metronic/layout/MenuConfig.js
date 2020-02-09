@@ -58,6 +58,13 @@ export default {
         translate: "MENU.EVENT"
       },
       {
+        title: "Questioner",
+        root: true,
+        alignment: "left",
+        page: "questioner",
+        translate: "MENU.QUESTIONER"
+      },
+      {
         title: "Setting",
         root: true,
         alignment: "left",
