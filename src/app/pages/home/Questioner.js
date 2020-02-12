@@ -61,7 +61,7 @@ function Questioner() {
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
     const [listValue, setListValue] = useState([]);
-    const [open2, setOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -303,7 +303,7 @@ function Questioner() {
                             </PortletBody>
                         </Portlet>
                         <Dialog
-                            open={open2}
+                            open={open}
                             onClose={handleClose}
                             aria-labelledby="alert-dialog-title"
                             aria-describedby="alert-dialog-description"

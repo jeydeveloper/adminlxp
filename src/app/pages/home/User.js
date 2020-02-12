@@ -14,7 +14,12 @@ import {
   MenuItem,
   Input,
   FormControl,
-  InputLabel
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -95,6 +100,7 @@ function User() {
   const [attributeValueError, setAttributeValueError] = useState([]);
   const [attributeValueRequired, setAttributeValueRequired] = useState([]);
   const [message, setMessage] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -123,10 +129,12 @@ function User() {
     setAttributeValue(user.attribute.map(value => value.attribute_value));
   };
 
-  const deleteUser = (user) => {
+  const deleteUser = () => {
+    let user = values;
     axios.delete(`${REACT_APP_API_URL}/users/${user._id}`)
       .then(res => {
         setUsers(users.filter(value => value._id !== user._id));
+        setOpen(false);
       })
   };
 
@@ -161,7 +169,7 @@ function User() {
   };
 
   const addUser = () => {
-    setValues({ ...values, ...initialStateForm });
+    setValues({ ...initialStateForm });
     setForm(true);
   };
 
@@ -239,6 +247,15 @@ function User() {
     setValuesError(initialStateError);
     setAttributeValue([]);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleClickOpen = (question) => {
+    setValues({ ...values, ...question });
+    setOpen(true);
+  }
 
   return (
     <>
@@ -434,7 +451,7 @@ function User() {
                             <Button onClick={() => { editUser(value) }} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                            <Button onClick={() => { deleteUser(value) }} variant="contained" className={classes.button}>
+                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -450,6 +467,29 @@ function User() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteUser} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
       }
