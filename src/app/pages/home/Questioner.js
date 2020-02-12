@@ -14,7 +14,12 @@ import {
     Radio,
     Checkbox,
     FormControl,
-    FormLabel
+    FormLabel,
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    DialogContent,
+    DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -56,6 +61,7 @@ function Questioner() {
     const [values, setValues] = useState(initialStateForm);
     const [formId, setFormId] = useState(false);
     const [listValue, setListValue] = useState([]);
+    const [open2, setOpen] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -74,10 +80,12 @@ function Questioner() {
         setListValue(question.options);
     };
 
-    const deleteQuestioner = (question) => {
+    const deleteQuestioner = () => {
+        let question = values;
         axios.delete(`${REACT_APP_API_URL}/questioners/${question._id}`)
             .then(res => {
                 setQuestioners(questions.filter(value => value._id !== question._id));
+                setOpen(false);
             })
     };
 
@@ -100,7 +108,7 @@ function Questioner() {
     };
 
     const addQuestioner = () => {
-        setValues({ ...values, ...initialStateForm });
+        setValues({ ...initialStateForm });
         setForm(true);
     };
 
@@ -137,6 +145,15 @@ function Questioner() {
             "is_answer": false
         }]);
     };
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+    const handleClickOpen = (question) => {
+        setValues({ ...values, ...question });
+        setOpen(true);
+    }
 
     return (
         <>
@@ -269,7 +286,7 @@ function Questioner() {
                                                         <Button onClick={() => { editQuestioner(value) }} color="primary" variant="contained" className={classes.button}>
                                                             Edit
                             </Button>
-                                                        <Button onClick={() => { deleteQuestioner(value) }} variant="contained" className={classes.button}>
+                                                        <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
                                                             Delete
                             </Button>
                                                     </td>
@@ -285,6 +302,29 @@ function Questioner() {
                                 </Table>
                             </PortletBody>
                         </Portlet>
+                        <Dialog
+                            open={open2}
+                            onClose={handleClose}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title">
+                                {"Delete confirmation?"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Are you sure to delete this data?
+                      </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleClose} color="primary">
+                                    No
+                      </Button>
+                                <Button onClick={deleteQuestioner} color="primary" autoFocus>
+                                    Yes
+                      </Button>
+                            </DialogActions>
+                        </Dialog>
                     </div>
                 </div>
             }
