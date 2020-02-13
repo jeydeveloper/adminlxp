@@ -2,21 +2,10 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   Portlet,
-  PortletBody,
-  PortletHeader,
-  PortletHeaderToolbar
+  PortletBody
 } from "../../partials/content/Portlet";
 import { metronic } from "../../../_metronic";
 import QuickStatsChart from "../../widgets/QuickStatsChart";
-import OrderStatisticsChart from "../../widgets/OrderStatisticsChart";
-import OrdersWidget from "../../widgets/OrdersWidget";
-import SalesBarChart from "../../widgets/SalesBarChart";
-import DownloadFiles from "../../widgets/DownloadFiles";
-import NewUsers from "../../widgets/NewUsers";
-import LatestUpdates from "../../widgets/LatestUpdates";
-import BestSellers from "../../widgets/BestSellers";
-import RecentActivities from "../../widgets/RecentActivities";
-import PortletHeaderDropdown from "../../partials/content/CustomDropdowns/PortletHeaderDropdown";
 
 export default function Dashboard() {
   const { brandColor, dangerColor, successColor, primaryColor } = useSelector(
@@ -130,73 +119,6 @@ export default function Dashboard() {
               </Portlet>
             </div>
           </div>
-        </div>
-
-        <div className="col-xl-6">
-          <Portlet fluidHeight={true}>
-            <PortletHeader
-              title="Order Statistics"
-              toolbar={
-                <PortletHeaderToolbar>
-                  <PortletHeaderDropdown />
-                </PortletHeaderToolbar>
-              }
-            />
-
-            <PortletBody>
-              <OrderStatisticsChart />
-            </PortletBody>
-          </Portlet>
-        </div>
-      </div>
-
-      <Portlet>
-        <PortletBody fit={true}>
-          <div className="row row-no-padding row-col-separator-xl">
-            <div className="col-xl-4">
-              <OrdersWidget />
-            </div>
-            <div className="col-xl-4">
-              <SalesBarChart
-                title="Daily Sales"
-                desc="Check out each column for more details"
-              />
-            </div>
-            <div className="col-xl-4">
-              <SalesBarChart
-                title="Revenue Change"
-                desc="Revenue change breakdown by cities"
-              />
-            </div>
-          </div>
-        </PortletBody>
-      </Portlet>
-
-      <div className="row">
-        <div className="col-xl-4">
-          <DownloadFiles />
-        </div>
-        <div className="col-xl-4">
-          <NewUsers />
-        </div>
-        <div className="col-xl-4">
-          <LatestUpdates />
-        </div>
-      </div>
-
-      {/* <div className="row">
-        <div className="col-xl-8"></div>
-        <div className="col-xl-4">
-          <AuthorsProfit />
-        </div>
-      </div> */}
-
-      <div className="row">
-        <div className="col-xl-8">
-          <BestSellers />
-        </div>
-        <div className="col-xl-4">
-          <RecentActivities />
         </div>
       </div>
     </>
