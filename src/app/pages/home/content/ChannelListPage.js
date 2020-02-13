@@ -14,7 +14,12 @@ import {
   MenuItem,
   Input,
   FormControl,
-  InputLabel
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -85,6 +90,7 @@ function ChannelListPage() {
     const [message, setMessage] = useState(null);
     const [contents, setContents] = useState([]);
     const [contentValue, setContentValue] = useState([]);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
       async function fetchData() {
@@ -124,10 +130,12 @@ function ChannelListPage() {
       }
     };
 
-    const deleteContent = (channel) => {
+    const deleteContent = () => {
+      let channel = values;
       axios.delete(`${REACT_APP_API_URL}/channels/${channel._id}`)
       .then(res => {
         setChannels(channels.filter(value => value._id !== channel._id));
+        setOpen(false);
       })
     };
 
@@ -241,7 +249,7 @@ function ChannelListPage() {
           .then(res => {
             values._id = res[0].data._id;
             setChannels([...channels, { ...values, "image":res[1] }]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -253,7 +261,7 @@ function ChannelListPage() {
           .then(res => {
             values._id = res.data._id;
             setChannels([...channels, values]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -277,6 +285,15 @@ function ChannelListPage() {
         setImages(null);
         setContentValue([]);
     };
+
+    const handleClose = () => {
+      setOpen(false);
+    }
+  
+    const handleClickOpen = (question) => {
+      setValues({ ...values, ...question });
+      setOpen(true);
+    }
 
     return (
       <>
@@ -472,7 +489,7 @@ function ChannelListPage() {
                             <Button onClick={() => {editContent(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                             <Button onClick={() => {deleteContent(value)}} variant="contained" className={classes.button}>
+                             <Button onClick={() => {handleClickOpen(value)}} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -488,6 +505,29 @@ function ChannelListPage() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteContent} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
         }

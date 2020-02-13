@@ -224,7 +224,7 @@ function User() {
         .then(res => {
           values._id = res.data._id;
           setUsers([...users, values]);
-          setValues({ ...values, ...initialStateForm });
+          setValues({ ...initialStateForm });
           setSuccess(true);
           clearForm();
         })

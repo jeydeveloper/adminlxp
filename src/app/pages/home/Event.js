@@ -15,7 +15,12 @@ import {
   MenuItem,
   Input,
   FormControl,
-  InputLabel
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -89,6 +94,7 @@ function Event() {
   const [message, setMessage] = useState(null);
   const [attributes, setAttributes] = useState([]);
   const [attributeValue, setAttributeValue] = useState([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -121,10 +127,12 @@ function Event() {
     setAttributeValue(event.attribute.map(value => value.attribute_value));
   };
 
-  const deleteEvent = (event) => {
+  const deleteEvent = () => {
+    let event = values;
     axios.delete(`${REACT_APP_API_URL}/events/${event._id}`)
       .then(res => {
         setEvents(events.filter(value => value._id !== event._id));
+        setOpen(false);
       })
   };
 
@@ -185,7 +193,7 @@ function Event() {
   };
 
   const addEvent = () => {
-    setValues({ ...values, ...initialStateForm });
+    setValues({ ...initialStateForm });
     setForm(true);
   };
 
@@ -230,7 +238,7 @@ function Event() {
           .then(res => {
             values._id = res[0].data._id;
             setEvents([...events, { ...values, "image": res[1] }]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -242,7 +250,7 @@ function Event() {
           .then(res => {
             values._id = res.data._id;
             setEvents([...events, values]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -264,6 +272,15 @@ function Event() {
     setImages(null);
     setAttributeValue([]);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleClickOpen = (question) => {
+    setValues({ ...values, ...question });
+    setOpen(true);
+  }
 
   return (
     <>
@@ -489,7 +506,7 @@ function Event() {
                             <Button onClick={() => { editEvent(value) }} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                            <Button onClick={() => { deleteEvent(value) }} variant="contained" className={classes.button}>
+                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -505,6 +522,29 @@ function Event() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteEvent} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
       }

@@ -15,7 +15,12 @@ import {
   Checkbox,
   FormControl,
   FormLabel,
-  FormGroup
+  FormGroup,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -59,6 +64,7 @@ function Attribute() {
   const [values, setValues] = useState(initialStateForm);
   const [formId, setFormId] = useState(false);
   const [listValue, setListValue] = useState([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -78,10 +84,12 @@ function Attribute() {
     setListValue(attribute.value);
   };
 
-  const deleteAttribute = (attribute) => {
+  const deleteAttribute = () => {
+    let attribute = values;
     axios.delete(`${REACT_APP_API_URL}/attributes/${attribute._id}`)
       .then(res => {
         setAttributes(attributes.filter(value => value._id !== attribute._id));
+        setOpen(false);
       })
   };
 
@@ -107,7 +115,7 @@ function Attribute() {
   };
 
   const addAttribute = () => {
-    setValues({ ...values, ...initialStateForm });
+    setValues({ ...initialStateForm });
     setForm(true);
   };
 
@@ -141,6 +149,15 @@ function Attribute() {
   const addNewValue = () => {
     setListValue([...listValue, ""]);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleClickOpen = (question) => {
+    setValues({ ...values, ...question });
+    setOpen(true);
+  }
 
   return (
     <>
@@ -352,7 +369,7 @@ function Attribute() {
                             <Button onClick={() => { editAttribute(value) }} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                            <Button onClick={() => { deleteAttribute(value) }} variant="contained" className={classes.button}>
+                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -368,6 +385,29 @@ function Attribute() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteAttribute} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
       }

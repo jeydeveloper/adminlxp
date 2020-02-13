@@ -18,7 +18,12 @@ import {
   FormControlLabel,
   RadioGroup,
   Radio,
-  FormLabel
+  FormLabel,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -89,6 +94,7 @@ function ContentListPage() {
   const [attributeValue, setAttributeValue] = useState([]);
   const [images, setImages] = useState(null);
   const [message, setMessage] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -115,10 +121,12 @@ function ContentListPage() {
     setAttributeValue(content.attribute.map(value => value.attribute_value));
   };
 
-  const deleteContent = (content) => {
+  const deleteContent = () => {
+    let content = values;
     axios.delete(`${REACT_APP_API_URL}/contents/${content._id}`)
       .then(res => {
         setContents(contents.filter(value => value._id !== content._id));
+        setOpen(false);
       })
   };
 
@@ -226,7 +234,7 @@ function ContentListPage() {
           .then(res => {
             values._id = res[0].data._id;
             setContents([...contents, { ...values, "image": res[1] }]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -238,7 +246,7 @@ function ContentListPage() {
           .then(res => {
             values._id = res.data._id;
             setContents([...contents, values]);
-            setValues({ ...values, ...initialStateForm });
+            setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
           })
@@ -261,6 +269,15 @@ function ContentListPage() {
     setAttributeValue([]);
     setImages(null);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleClickOpen = (question) => {
+    setValues({ ...values, ...question });
+    setOpen(true);
+  }
 
   return (
     <>
@@ -542,7 +559,7 @@ function ContentListPage() {
                             <Button onClick={() => { editContent(value) }} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                            <Button onClick={() => { deleteContent(value) }} variant="contained" className={classes.button}>
+                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -558,6 +575,29 @@ function ContentListPage() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteContent} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
       }

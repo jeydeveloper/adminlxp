@@ -18,7 +18,11 @@ import {
   Input,
   FormControl,
   InputLabel,
-  
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  DialogContentText
 } from "@material-ui/core";
 import { Alert } from "react-bootstrap";
 import axios from "axios";
@@ -87,6 +91,7 @@ function Audience() {
     const [fragment1, setFragment1] = useState([]);
     const [fragment2, setFragment2] = useState([]);
     const [fragment2value, setFragment2value] = useState([]);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
       async function fetchDataAudience() {
@@ -122,10 +127,12 @@ function Audience() {
       }
     };
 
-    const deleteAudience = (audience) => {
+    const deleteAudience = () => {
+      let audience = values;
       axios.delete(`${REACT_APP_API_URL}/audiences/${audience._id}`)
       .then(res => {
         setAudiences(audiences.filter(value => value._id !== audience._id));
+        setOpen(false);
       })
     };
     
@@ -143,7 +150,7 @@ function Audience() {
     };
 
     const addAudience = () => {
-      setValues({ ...values, ...initialStateForm });
+      setValues({ ...initialStateForm });
       setForm(true);
     };
 
@@ -221,6 +228,15 @@ function Audience() {
       setFragment2([]);
       setFragment2value([]);
     };
+
+    const handleClose = () => {
+      setOpen(false);
+    }
+  
+    const handleClickOpen = (question) => {
+      setValues({ ...values, ...question });
+      setOpen(true);
+    }
 
     return (
       <>
@@ -436,7 +452,7 @@ function Audience() {
                             <Button onClick={() => {editAudience(value)}} color="primary" variant="contained" className={classes.button}>
                               Edit
                             </Button>
-                             <Button onClick={() => {deleteAudience(value)}} variant="contained" className={classes.button}>
+                             <Button onClick={() => {handleClickOpen(value)}} variant="contained" className={classes.button}>
                               Delete
                             </Button>
                           </td>
@@ -452,6 +468,29 @@ function Audience() {
                 </Table>
               </PortletBody>
             </Portlet>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Delete confirmation?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this data?
+                      </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  No
+                      </Button>
+                <Button onClick={deleteAudience} color="primary" autoFocus>
+                  Yes
+                      </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
         }
