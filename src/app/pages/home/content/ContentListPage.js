@@ -1,5 +1,5 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { Table, Image } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
+import { Image } from "react-bootstrap";
 import {
   Portlet,
   PortletBody,
@@ -29,6 +29,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -59,6 +60,12 @@ const style = {
     marginTop: "16px"
   }
 };
+
+const FilterComponent = ({ filterText, onFilter }) => (
+  <>
+    <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+  </>
+);
 
 function ContentListPage() {
   const classes = useStyles();
@@ -96,6 +103,25 @@ function ContentListPage() {
   const [message, setMessage] = useState(null);
   const [open, setOpen] = useState(false);
 
+  const [filterText, setFilterText] = useState('');
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const filteredItems = contents.filter(item =>
+    (item.title && item.title.toLowerCase().includes(filterText.toLowerCase())) || 
+    (item.description && item.description.toLowerCase().includes(filterText.toLowerCase())) || 
+    (item.type && item.type.toLowerCase().includes(filterText.toLowerCase()))
+  );
+
+  const subHeaderComponentMemo = useMemo(() => {
+    const handleClear = () => {
+      if (filterText) {
+        setResetPaginationToggle(!resetPaginationToggle);
+        setFilterText('');
+      }
+    };
+
+    return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+  }, [filterText, resetPaginationToggle]);
+
   useEffect(() => {
     async function fetchData() {
       axios.get(`${REACT_APP_API_URL}/contents`)
@@ -114,12 +140,12 @@ function ContentListPage() {
     fetchDataAttribute();
   }, []);
 
-  const editContent = (content) => {
+  const editContent = useCallback((content) => {
     setValues({ ...values, ...content });
     setForm(true);
     setFormId(content._id);
     setAttributeValue(content.attribute.map(value => value.attribute_value));
-  };
+  }, [values]);
 
   const deleteContent = () => {
     let content = values;
@@ -274,10 +300,43 @@ function ContentListPage() {
     setOpen(false);
   }
 
-  const handleClickOpen = (question) => {
+  const handleClickOpen = useCallback((question) => {
     setValues({ ...values, ...question });
     setOpen(true);
-  }
+  }, [values]);
+
+  const columns = useMemo(() => [
+    {
+      name: <FormattedMessage id="CONTENT.NAME" />,
+      selector: 'title',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="CONTENT.DESCRIPTION" />,
+      selector: 'description',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="CONTENT.TYPE" />,
+      selector: 'type',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="CONTENT.IMAGE" />,
+      selector: 'image',
+      cell: row => row.image ? <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${row.image}`} thumbnail /> : '',
+      width: '10%'
+    },
+    {
+      name: <FormattedMessage id="LABEL.ACTION" />,
+      button: true,
+      cell: row => <Fragment><Button onClick={() => { editContent(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { handleClickOpen(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
+      width: '30%'
+    },
+  ], [editContent, handleClickOpen, classes.button]);
 
   return (
     <>
@@ -535,44 +594,16 @@ function ContentListPage() {
                 }
               />
               <PortletBody fluid={true}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th><FormattedMessage id="CONTENT.NAME" /></th>
-                      <th><FormattedMessage id="CONTENT.DESCRIPTION" /></th>
-                      <th><FormattedMessage id="CONTENT.TYPE" /></th>
-                      <th><FormattedMessage id="CONTENT.IMAGE" /></th>
-                      <th><FormattedMessage id="LABEL.ACTION" /></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      contents.map((value, index) => {
-                        return <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td>
-                          <td style={style.rowTable}>{value.title}</td>
-                          <td style={style.rowTable}>{value.description}</td>
-                          <td style={style.rowTable}>{value.type}</td>
-                          <td style={style.rowTable}>{value.image && <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
-                          <td>
-                            <Button onClick={() => { editContent(value) }} color="primary" variant="contained" className={classes.button}>
-                              Edit
-                            </Button>
-                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      })
-                    }
-                    {contents.length === 0 && (
-                      <tr>
-                        <td colSpan="6">Data is empty</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <DataTable
+                  noHeader
+                  columns={columns}
+                  data={filteredItems}
+                  pagination
+                  paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                  subHeader
+                  subHeaderComponent={subHeaderComponentMemo}
+                  persistTableHead
+                />
               </PortletBody>
             </Portlet>
             <Dialog

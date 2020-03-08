@@ -1,5 +1,5 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { Table, Image } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
+import { Image } from "react-bootstrap";
 import {
   Portlet,
   PortletBody,
@@ -25,6 +25,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -48,178 +49,202 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const style = {
-  rowTable: {"verticalAlign":"middle"},
-  fullWidth: {width: "100%"},
-  textAlignCenter: {"textAlign": "center"},
+  rowTable: { "verticalAlign": "middle" },
+  fullWidth: { width: "100%" },
+  textAlignCenter: { "textAlign": "center" },
   marginTopBottom: {
     marginTop: "16px"
   }
 };
-                  
+
+const FilterComponent = ({ filterText, onFilter }) => (
+  <>
+    <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+  </>
+);
+
 function ChannelListPage() {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const initialStateForm = {
-      "title": "",
-      "description": "",
-      "image": "",
-      "content": [],
-      "attribute": [],
-    };
+  const initialStateForm = {
+    "title": "",
+    "description": "",
+    "image": "",
+    "content": [],
+    "attribute": [],
+  };
 
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-      PaperProps: {
-        style: {
-          maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-          width: 250
-        }
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250
+      }
+    }
+  };
+
+  const [success, setSuccess] = useState(null);
+  const [failed, setFailed] = useState(null);
+  const [form, setForm] = useState(null);
+  const [channels, setChannels] = useState([]);
+  const [values, setValues] = useState(initialStateForm);
+  const [formId, setFormId] = useState(false);
+  const [attributes, setAttributes] = useState([]);
+  const [attributeValue, setAttributeValue] = useState([]);
+  const [images, setImages] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [contents, setContents] = useState([]);
+  const [contentValue, setContentValue] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  const [filterText, setFilterText] = useState('');
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const filteredItems = channels.filter(item =>
+    (item.title && item.title.toLowerCase().includes(filterText.toLowerCase())) ||
+    (item.description && item.description.toLowerCase().includes(filterText.toLowerCase()))
+  );
+
+  const subHeaderComponentMemo = useMemo(() => {
+    const handleClear = () => {
+      if (filterText) {
+        setResetPaginationToggle(!resetPaginationToggle);
+        setFilterText('');
       }
     };
 
-    const [success, setSuccess] = useState(null);
-    const [failed, setFailed] = useState(null);
-    const [form, setForm] = useState(null);
-    const [channels, setChannels] = useState([]);
-    const [values, setValues] = useState(initialStateForm);
-    const [formId, setFormId] = useState(false);
-    const [attributes, setAttributes] = useState([]);
-    const [attributeValue, setAttributeValue] = useState([]);
-    const [images, setImages] = useState(null);
-    const [message, setMessage] = useState(null);
-    const [contents, setContents] = useState([]);
-    const [contentValue, setContentValue] = useState([]);
-    const [open, setOpen] = useState(false);
+    return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+  }, [filterText, resetPaginationToggle]);
 
-    useEffect(() => {
-      async function fetchData() {
-        axios.get(`${REACT_APP_API_URL}/channels`)
+  useEffect(() => {
+    async function fetchData() {
+      axios.get(`${REACT_APP_API_URL}/channels`)
         .then(res => {
           // console.log(res);
           setChannels(res.data)
         })
-      }
-      fetchData();
-      async function fetchDataAttribute() {
-        axios.get(`${REACT_APP_API_URL}/attributes`)
+    }
+    fetchData();
+    async function fetchDataAttribute() {
+      axios.get(`${REACT_APP_API_URL}/attributes`)
         .then(res => {
           setAttributes(res.data.filter(value => value.show_for_channel));
         })
-      }
-      fetchDataAttribute();
-      async function fetchDataContent() {
-        axios.get(`${REACT_APP_API_URL}/contents`)
+    }
+    fetchDataAttribute();
+    async function fetchDataContent() {
+      axios.get(`${REACT_APP_API_URL}/contents`)
         .then(res => {
           setContents(res.data);
         })
-      }
-      fetchDataContent();
-    }, []);
+    }
+    fetchDataContent();
+  }, []);
 
-    const editContent = (channel) => {
-      setValues({ ...values, ...channel });
-      setForm(true);
-      setFormId(channel._id);
-      setAttributeValue(channel.attribute.map(value => value.attribute_value));
-      if(channel.content.length > 0) {
-        setContentValue(channel.content.map(valChannelContent => {
-          let channelContent = contents.filter(valContents => valContents._id === valChannelContent);
-          return channelContent[0].title;
-        }))
-      }
-    };
+  const editChannel = useCallback((channel) => {
+    setValues({ ...values, ...channel });
+    setForm(true);
+    setFormId(channel._id);
+    setAttributeValue(channel.attribute.map(value => value.attribute_value));
+    if (channel.content.length > 0) {
+      setContentValue(channel.content.map(valChannelContent => {
+        let channelContent = contents.filter(valContents => valContents._id === valChannelContent);
+        return channelContent[0].title;
+      }))
+    }
+  }, [values, contents]);
 
-    const deleteContent = () => {
-      let channel = values;
-      axios.delete(`${REACT_APP_API_URL}/channels/${channel._id}`)
+  const deleteChannel = () => {
+    let channel = values;
+    axios.delete(`${REACT_APP_API_URL}/channels/${channel._id}`)
       .then(res => {
         setChannels(channels.filter(value => value._id !== channel._id));
         setOpen(false);
       })
+  };
+
+  const checkMimeType = (event) => {
+    let files = event.target.files;
+    let err = '';
+    const types = ['image/png', 'image/jpeg', 'image/gif'];
+    for (let x = 0; x < files.length; x++) {
+      if (types.every(type => files[x].type !== type)) {
+        err += files[x].type + ' is not a supported format\n';
+      }
     };
 
-    const checkMimeType = (event )=> {
-      let files = event.target.files;
-      let err = '';
-      const types = ['image/png', 'image/jpeg', 'image/gif'];
-      for(let x = 0; x<files.length; x++) {
-        if (types.every(type => files[x].type !== type)) {
-          err += files[x].type+' is not a supported format\n';
-        }
-      };
-    
-      if (err !== '') {
-        event.target.value = null;
-        setFailed(true);
-        setMessage(err);
-        return false; 
-      }
-     return true;
+    if (err !== '') {
+      event.target.value = null;
+      setFailed(true);
+      setMessage(err);
+      return false;
     }
+    return true;
+  }
 
-    const checkFileSize = (event) => {
-      let files = event.target.files;
-      let size = 2097152; //2M
-      let err = ""; 
-      for(let x = 0; x<files.length; x++) {
-          if (files[x].size > size) {
-          err += files[x].type+' is too large, please pick a smaller file (max 2M) \n';
-        }
-      };
-      if (err !== '') {
-          event.target.value = null;
-          setFailed(true);
-          setMessage(err);
-          return false;
+  const checkFileSize = (event) => {
+    let files = event.target.files;
+    let size = 2097152; //2M
+    let err = "";
+    for (let x = 0; x < files.length; x++) {
+      if (files[x].size > size) {
+        err += files[x].type + ' is too large, please pick a smaller file (max 2M) \n';
       }
-      return true;
+    };
+    if (err !== '') {
+      event.target.value = null;
+      setFailed(true);
+      setMessage(err);
+      return false;
     }
-    
-    const handleChange = name => event => {
-      setFailed(false);
-      setMessage(null);
-      if(name === "upload") {
-        const files = event.target.files[0];
-        if(checkMimeType(event) && checkFileSize(event)) {
-          setImages(files);
-        }
-      } else if(name === "content") {
-        setContentValue(event.target.value);
-      } else {
-        setValues({ ...values, [name]: event.target.value });
+    return true;
+  }
+
+  const handleChange = name => event => {
+    setFailed(false);
+    setMessage(null);
+    if (name === "upload") {
+      const files = event.target.files[0];
+      if (checkMimeType(event) && checkFileSize(event)) {
+        setImages(files);
       }
-    };
+    } else if (name === "content") {
+      setContentValue(event.target.value);
+    } else {
+      setValues({ ...values, [name]: event.target.value });
+    }
+  };
 
-    const handleAttribute = index => event => {
-        let newAttributeValue = [...attributeValue];
-        newAttributeValue[index] = event.target.value;
-        setAttributeValue(newAttributeValue);
-    };
+  const handleAttribute = index => event => {
+    let newAttributeValue = [...attributeValue];
+    newAttributeValue[index] = event.target.value;
+    setAttributeValue(newAttributeValue);
+  };
 
-    const addChannel = () => {
-      setValues(initialStateForm);
-      setForm(true);
-    };
+  const addChannel = () => {
+    setValues(initialStateForm);
+    setForm(true);
+  };
 
-    const saveForm = () => {
-      setSuccess(false);
-      setFailed(false);
-      values.attribute = attributes.map((valAttribute, idxAttribute) => ({
-      "attribute_name":valAttribute.name,
-      "attribute_value":(attributeValue[idxAttribute] || "")
-      }));
-      values.content = contentValue.map(valContentValue => {
-        let contentFilter = contents.filter(valContents => valContents.title === valContentValue);
-        return contentFilter[0]._id;
-      })
-      if(formId) {
-        if(images) {
-          const data = new FormData();
-          data.append('file', images)
-          axios.post(`${REACT_APP_API_URL}/upload`, data)
+  const saveForm = () => {
+    setSuccess(false);
+    setFailed(false);
+    values.attribute = attributes.map((valAttribute, idxAttribute) => ({
+      "attribute_name": valAttribute.name,
+      "attribute_value": (attributeValue[idxAttribute] || "")
+    }));
+    values.content = contentValue.map(valContentValue => {
+      let contentFilter = contents.filter(valContents => valContents.title === valContentValue);
+      return contentFilter[0]._id;
+    })
+    if (formId) {
+      if (images) {
+        const data = new FormData();
+        data.append('file', images)
+        axios.post(`${REACT_APP_API_URL}/upload`, data)
           .then(res => {
-            return axios.put(`${REACT_APP_API_URL}/channels/${formId}`, { ...values, "image":res.data.filename })
+            return axios.put(`${REACT_APP_API_URL}/channels/${formId}`, { ...values, "image": res.data.filename })
           })
           .then(res => {
             setChannels(channels.map(value => (value._id === formId ? res.data : value)));
@@ -228,27 +253,27 @@ function ChannelListPage() {
           .catch(function (error) {
             console.log(error);
           })
-        } else {
-          axios.put(`${REACT_APP_API_URL}/channels/${formId}`, values)
+      } else {
+        axios.put(`${REACT_APP_API_URL}/channels/${formId}`, values)
           .then(res => {
             setChannels(channels.map(value => (value._id === formId ? res.data : value)));
             setSuccess(true);
           })
-        }
-      } else {
-        if(images) {
-          const data = new FormData();
-          data.append('file', images)
-          axios.post(`${REACT_APP_API_URL}/upload`, data)
+      }
+    } else {
+      if (images) {
+        const data = new FormData();
+        data.append('file', images)
+        axios.post(`${REACT_APP_API_URL}/upload`, data)
           .then(res => {
             return Promise.all([
-              axios.post(`${REACT_APP_API_URL}/channels`, { ...values, "image":res.data.filename }),
+              axios.post(`${REACT_APP_API_URL}/channels`, { ...values, "image": res.data.filename }),
               res.data.filename
             ]);
           })
           .then(res => {
             values._id = res[0].data._id;
-            setChannels([...channels, { ...values, "image":res[1] }]);
+            setChannels([...channels, { ...values, "image": res[1] }]);
             setValues({ ...initialStateForm });
             setSuccess(true);
             clearForm();
@@ -256,8 +281,8 @@ function ChannelListPage() {
           .catch(function (error) {
             console.log(error);
           })
-        } else {
-          axios.post(`${REACT_APP_API_URL}/channels`, values)
+      } else {
+        axios.post(`${REACT_APP_API_URL}/channels`, values)
           .then(res => {
             values._id = res.data._id;
             setChannels([...channels, values]);
@@ -268,47 +293,74 @@ function ChannelListPage() {
           .catch(function (error) {
             setFailed(true);
           })
-        }
       }
-    };
-
-    const doneForm = () => {
-      setForm(false);
-      setSuccess(false);
-      setFailed(false);
-      setFormId(null);
-      clearForm();
-    };
-
-    const clearForm = () => {
-        setAttributeValue([]);
-        setImages(null);
-        setContentValue([]);
-    };
-
-    const handleClose = () => {
-      setOpen(false);
     }
-  
-    const handleClickOpen = (question) => {
-      setValues({ ...values, ...question });
-      setOpen(true);
-    }
+  };
 
-    return (
-      <>
-        {form && 
-          <div className="row">
-            <div className="col-md-12">
+  const doneForm = () => {
+    setForm(false);
+    setSuccess(false);
+    setFailed(false);
+    setFormId(null);
+    clearForm();
+  };
+
+  const clearForm = () => {
+    setAttributeValue([]);
+    setImages(null);
+    setContentValue([]);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleClickOpen = useCallback((question) => {
+    setValues({ ...values, ...question });
+    setOpen(true);
+  }, [values]);
+
+  const columns = useMemo(() => [
+    {
+      name: <FormattedMessage id="CHANNEL.NAME" />,
+      selector: 'title',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="CHANNEL.DESCRIPTION" />,
+      selector: 'description',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="CHANNEL.IMAGE" />,
+      selector: 'image',
+      cell: row => row.image ? <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${row.image}`} thumbnail /> : '',
+      width: '10%'
+    },
+    {
+      name: <FormattedMessage id="LABEL.ACTION" />,
+      button: true,
+      cell: row => <Fragment><Button onClick={() => { editChannel(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { handleClickOpen(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
+      width: '30%'
+    },
+  ], [editChannel, handleClickOpen, classes.button]);
+
+  return (
+    <>
+      {form &&
+        <div className="row">
+          <div className="col-md-12">
             {success && (
-            <Alert style={{"marginTop":"10px"}} variant="success">
-              Save data success!
+              <Alert style={{ "marginTop": "10px" }} variant="success">
+                Save data success!
             </Alert>
             )}
             {failed && (
-            <Alert style={{"marginTop":"10px"}} variant="danger">
-              {message}
-            </Alert>
+              <Alert style={{ "marginTop": "10px" }} variant="danger">
+                {message}
+              </Alert>
             )}
             <Portlet>
               <PortletBody fluid={true}>
@@ -332,12 +384,12 @@ function ChannelListPage() {
                     required
                   />
 
-                  <input style={{marginTop:"15px"}} type="file" name="file" onChange={handleChange("upload")}/>
+                  <input style={{ marginTop: "15px" }} type="file" name="file" onChange={handleChange("upload")} />
                   {
-                    attributes.map((valAttribute, idxAttribute) => 
-                        <Fragment key={`channelattribute${idxAttribute}`}>
-                        {valAttribute.type === "date" && 
-                        <TextField
+                    attributes.map((valAttribute, idxAttribute) =>
+                      <Fragment key={`channelattribute${idxAttribute}`}>
+                        {valAttribute.type === "date" &&
+                          <TextField
                             value={attributeValue[idxAttribute] || ""}
                             type="date"
                             label={valAttribute.name}
@@ -345,116 +397,116 @@ function ChannelListPage() {
                             margin="normal"
                             fullWidth
                             InputLabelProps={{
-                                shrink: true
+                              shrink: true
                             }}
-                        />
+                          />
                         }
-                        {valAttribute.type === "text" && 
-                        <TextField
+                        {valAttribute.type === "text" &&
+                          <TextField
                             value={attributeValue[idxAttribute] || ""}
                             label={valAttribute.name}
                             onChange={handleAttribute(idxAttribute)}
                             margin="normal"
                             fullWidth
-                        />
+                          />
                         }
-                        {valAttribute.type === "list" && 
-                        <div>
-                        <FormControl className={classes.formControl}>
-                        <InputLabel>{valAttribute.name}</InputLabel>
-                        <Select
-                          key={`sel2${idxAttribute}`}
-                          value={attributeValue[idxAttribute] || ""}
-                          onChange={handleAttribute(idxAttribute)}
-                          displayEmpty
-                          name="attributevalue"
-                        >
-                          {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
-                            <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
-                          )}
-                        </Select>
-                        </FormControl>
-                        </div>
+                        {valAttribute.type === "list" &&
+                          <div>
+                            <FormControl className={classes.formControl}>
+                              <InputLabel>{valAttribute.name}</InputLabel>
+                              <Select
+                                key={`sel2${idxAttribute}`}
+                                value={attributeValue[idxAttribute] || ""}
+                                onChange={handleAttribute(idxAttribute)}
+                                displayEmpty
+                                name="attributevalue"
+                              >
+                                {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
+                                  <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
+                                )}
+                              </Select>
+                            </FormControl>
+                          </div>
                         }
-                        {valAttribute.type === "multiselect" && 
-                        <div>
-                        <FormControl className={classes.formControl}>
-                        <InputLabel htmlFor="select-multiple-chip">{valAttribute.name}</InputLabel>
-                        <Select
-                          multiple
-                          key={`sel2${idxAttribute}`}
-                          value={attributeValue[idxAttribute] || []}
-                          onChange={handleAttribute(idxAttribute)}
-                          name="attributevalue"
-                          input={<Input id={`select-multiple-chip-${idxAttribute}`} />}
-                          renderValue={selected => (
-                            <div className={classes.chips}>
-                              {selected.map(value => (
-                                <Chip
-                                  key={value}
-                                  label={value}
-                                  className={classes.chip}
-                                />
-                              ))}
-                            </div>
-                          )}
-                          MenuProps={MenuProps}
-                        >
-                          {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
-                            <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
-                          )}
-                        </Select>
-                        </FormControl>
-                        </div>
+                        {valAttribute.type === "multiselect" &&
+                          <div>
+                            <FormControl className={classes.formControl}>
+                              <InputLabel htmlFor="select-multiple-chip">{valAttribute.name}</InputLabel>
+                              <Select
+                                multiple
+                                key={`sel2${idxAttribute}`}
+                                value={attributeValue[idxAttribute] || []}
+                                onChange={handleAttribute(idxAttribute)}
+                                name="attributevalue"
+                                input={<Input id={`select-multiple-chip-${idxAttribute}`} />}
+                                renderValue={selected => (
+                                  <div className={classes.chips}>
+                                    {selected.map(value => (
+                                      <Chip
+                                        key={value}
+                                        label={value}
+                                        className={classes.chip}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                MenuProps={MenuProps}
+                              >
+                                {valAttribute.value.map((valAttributeValue, indexAttributeValue) =>
+                                  <MenuItem key={`attr2${indexAttributeValue}`} value={valAttributeValue}>{valAttributeValue}</MenuItem>
+                                )}
+                              </Select>
+                            </FormControl>
+                          </div>
                         }
-                        </Fragment>
+                      </Fragment>
                     )
                   }
 
                   <FormControl className={classes.formControl}>
-                      <InputLabel htmlFor="select-multiple-chip"><FormattedMessage id="CHANNEL.SELECTCONTENT" /></InputLabel>
-                      <Select
-                        multiple
-                        value={contentValue || []}
-                        onChange={handleChange("content")}
-                        name="contentvalue"
-                        input={<Input id={`select-multiple-chip`} />}
-                        renderValue={selected => (
-                          <div className={classes.chips}>
-                            {selected.map(value => (
-                              <Chip
-                                key={value}
-                                label={value}
-                                className={classes.chip}
-                              />
-                            ))}
-                          </div>
-                        )}
-                        MenuProps={MenuProps}
-                      >
-                        {contents.map((valContents, indexContentValue) =>
-                          <MenuItem key={`attr2${indexContentValue}`} value={valContents.title}>{valContents.title}</MenuItem>
-                        )}
-                      </Select>
+                    <InputLabel htmlFor="select-multiple-chip"><FormattedMessage id="CHANNEL.SELECTCONTENT" /></InputLabel>
+                    <Select
+                      multiple
+                      value={contentValue || []}
+                      onChange={handleChange("content")}
+                      name="contentvalue"
+                      input={<Input id={`select-multiple-chip`} />}
+                      renderValue={selected => (
+                        <div className={classes.chips}>
+                          {selected.map(value => (
+                            <Chip
+                              key={value}
+                              label={value}
+                              className={classes.chip}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      MenuProps={MenuProps}
+                    >
+                      {contents.map((valContents, indexContentValue) =>
+                        <MenuItem key={`attr2${indexContentValue}`} value={valContents.title}>{valContents.title}</MenuItem>
+                      )}
+                    </Select>
                   </FormControl>
                 </form>
               </PortletBody>
             </Portlet>
-            </div>
-            <div className="col-md-12">
-              <div style={style.textAlignCenter}>
-                <Button onClick={saveForm} color="primary" variant="contained" className={classes.button}>
-                  Save Data
+          </div>
+          <div className="col-md-12">
+            <div style={style.textAlignCenter}>
+              <Button onClick={saveForm} color="primary" variant="contained" className={classes.button}>
+                Save Data
                 </Button>
-                <Button onClick={doneForm} variant="contained" className={classes.button}>
-                  Done
+              <Button onClick={doneForm} variant="contained" className={classes.button}>
+                Done
                 </Button>
-              </div>
             </div>
           </div>
-        }
+        </div>
+      }
 
-        {!form && 
+      {!form &&
         <div className="row">
           <div className="col-md-12">
             <Portlet>
@@ -467,42 +519,16 @@ function ChannelListPage() {
                 }
               />
               <PortletBody fluid={true}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th><FormattedMessage id="CHANNEL.NAME" /></th>
-                      <th><FormattedMessage id="CHANNEL.DESCRIPTION" /></th>
-                      <th><FormattedMessage id="CHANNEL.IMAGE" /></th>
-                      <th><FormattedMessage id="LABEL.ACTION" /></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      channels.map((value, index) => {
-                        return <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td>
-                          <td style={style.rowTable}>{value.title}</td>
-                          <td style={style.rowTable}>{value.description}</td>
-                      <td style={style.rowTable}>{value.image && <Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
-                          <td>
-                            <Button onClick={() => {editContent(value)}} color="primary" variant="contained" className={classes.button}>
-                              Edit
-                            </Button>
-                             <Button onClick={() => {handleClickOpen(value)}} variant="contained" className={classes.button}>
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      })
-                    }
-                    {channels.length === 0 && (
-                      <tr>
-                        <td colSpan="5">Data is empty</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <DataTable
+                  noHeader
+                  columns={columns}
+                  data={filteredItems}
+                  pagination
+                  paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                  subHeader
+                  subHeaderComponent={subHeaderComponentMemo}
+                  persistTableHead
+                />
               </PortletBody>
             </Portlet>
             <Dialog
@@ -523,16 +549,16 @@ function ChannelListPage() {
                 <Button onClick={handleClose} color="primary">
                   No
                       </Button>
-                <Button onClick={deleteContent} color="primary" autoFocus>
+                <Button onClick={deleteChannel} color="primary" autoFocus>
                   Yes
                       </Button>
               </DialogActions>
             </Dialog>
           </div>
         </div>
-        }
-      </>
-    );
+      }
+    </>
+  );
 }
 
 export default injectIntl(
