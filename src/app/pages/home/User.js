@@ -1,5 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { Table } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
 import {
   Portlet,
   PortletBody,
@@ -25,6 +24,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -56,6 +56,12 @@ const style = {
     marginBottom: "8px"
   }
 };
+
+const FilterComponent = ({ filterText, onFilter }) => (
+  <>
+    <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+  </>
+);
 
 function User() {
   const classes = useStyles();
@@ -102,6 +108,25 @@ function User() {
   const [message, setMessage] = useState(null);
   const [open, setOpen] = useState(false);
 
+  const [filterText, setFilterText] = useState('');
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const filteredItems = users.filter(item =>
+    (item.fullname && item.fullname.includes(filterText)) || 
+    (item.username && item.username.includes(filterText)) || 
+    (item.email && item.email.includes(filterText))
+  );
+
+  const subHeaderComponentMemo = useMemo(() => {
+    const handleClear = () => {
+      if (filterText) {
+        setResetPaginationToggle(!resetPaginationToggle);
+        setFilterText('');
+      }
+    };
+
+    return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+  }, [filterText, resetPaginationToggle]);
+
   useEffect(() => {
     async function fetchData() {
       axios.get(`${REACT_APP_API_URL}/users`)
@@ -122,12 +147,12 @@ function User() {
     fetchDataAttribute();
   }, []);
 
-  const editUser = (user) => {
+  const editUser = useCallback((user) => {
     setValues({ ...values, ...user });
     setForm(true);
     setFormId(user._id);
     setAttributeValue(user.attribute.map(value => value.attribute_value));
-  };
+  }, [values]);
 
   const deleteUser = () => {
     let user = values;
@@ -252,10 +277,37 @@ function User() {
     setOpen(false);
   }
 
-  const handleClickOpen = (question) => {
+  const handleClickOpen = useCallback((question) => {
     setValues({ ...values, ...question });
     setOpen(true);
-  }
+  }, [values]);
+
+  const columns = useMemo(() => [
+    {
+      name: <FormattedMessage id="USER.FULLNAME" />,
+      selector: 'fullname',
+      sortable: true,
+      width: '30%'
+    },
+    {
+      name: <FormattedMessage id="USER.USERNAME" />,
+      selector: 'username',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="USER.EMAIL" />,
+      selector: 'email',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="LABEL.ACTION" />,
+      button: true,
+      cell: row => <Fragment><Button onClick={() => { editUser(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { handleClickOpen(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
+      width: '30%'
+    },
+  ], [editUser, handleClickOpen, classes.button]);
 
   return (
     <>
@@ -429,42 +481,16 @@ function User() {
                 }
               />
               <PortletBody fluid={true}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th><FormattedMessage id="USER.FULLNAME" /></th>
-                      <th><FormattedMessage id="USER.USERNAME" /></th>
-                      <th><FormattedMessage id="USER.EMAIL" /></th>
-                      <th><FormattedMessage id="LABEL.ACTION" /></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      users.map((value, index) => {
-                        return index !== 0 ? <tr key={index}>
-                          <td style={style.rowTable}>{index}</td>
-                          <td style={style.rowTable}>{value.fullname}</td>
-                          <td style={style.rowTable}>{value.username}</td>
-                          <td style={style.rowTable}>{value.email}</td>
-                          <td>
-                            <Button onClick={() => { editUser(value) }} color="primary" variant="contained" className={classes.button}>
-                              Edit
-                            </Button>
-                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
-                              Delete
-                            </Button>
-                          </td>
-                        </tr> : null
-                      })
-                    }
-                    {users.length === 0 && (
-                      <tr>
-                        <td colSpan="5">Data is empty</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <DataTable
+                  noHeader
+                  columns={columns}
+                  data={filteredItems}
+                  pagination
+                  paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                  subHeader
+                  subHeaderComponent={subHeaderComponentMemo}
+                  persistTableHead
+                />
               </PortletBody>
             </Portlet>
             <Dialog
