@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Table } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
 import {
   Portlet,
   PortletBody,
@@ -26,6 +25,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -44,6 +44,12 @@ const style = {
     marginBottom: "8px"
   }
 };
+
+const FilterComponent = ({ filterText, onFilter }) => (
+  <>
+    <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+  </>
+);
 
 function Attribute() {
   const classes = useStyles();
@@ -66,6 +72,23 @@ function Attribute() {
   const [listValue, setListValue] = useState([]);
   const [open, setOpen] = useState(false);
 
+  const [filterText, setFilterText] = useState('');
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const filteredItems = attributes.filter(item =>
+    (item.name && item.name.toLowerCase().includes(filterText.toLowerCase()))
+  );
+
+  const subHeaderComponentMemo = useMemo(() => {
+    const handleClear = () => {
+      if (filterText) {
+        setResetPaginationToggle(!resetPaginationToggle);
+        setFilterText('');
+      }
+    };
+
+    return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+  }, [filterText, resetPaginationToggle]);
+
   useEffect(() => {
     async function fetchData() {
       axios.get(`${REACT_APP_API_URL}/attributes`)
@@ -77,12 +100,12 @@ function Attribute() {
     fetchData();
   }, []);
 
-  const editAttribute = (attribute) => {
+  const editAttribute = useCallback((attribute) => {
     setValues({ ...values, ...attribute });
     setForm(true);
     setFormId(attribute._id);
     setListValue(attribute.value);
-  };
+  }, [values]);
 
   const deleteAttribute = () => {
     let attribute = values;
@@ -154,10 +177,36 @@ function Attribute() {
     setOpen(false);
   }
 
-  const handleClickOpen = (question) => {
+  const handleClickOpen = useCallback((question) => {
     setValues({ ...values, ...question });
     setOpen(true);
-  }
+  }, [values]);
+
+  const columns = useMemo(() => [
+    {
+      name: <FormattedMessage id="ATTRIBUTE.NAME" />,
+      selector: 'name',
+      sortable: true,
+      width: '30%'
+    },
+    {
+      name: <FormattedMessage id="ATTRIBUTE.TYPE" />,
+      selector: 'type',
+      sortable: true,
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="ATTRIBUTE.VALUE" />,
+      cell: row => row.value.join(", "),
+      width: '20%'
+    },
+    {
+      name: <FormattedMessage id="LABEL.ACTION" />,
+      button: true,
+      cell: row => <Fragment><Button onClick={() => { editAttribute(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { handleClickOpen(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
+      width: '30%'
+    },
+  ], [editAttribute, handleClickOpen, classes.button]);
 
   return (
     <>
@@ -347,42 +396,16 @@ function Attribute() {
                 }
               />
               <PortletBody fluid={true}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th><FormattedMessage id="ATTRIBUTE.NAME" /></th>
-                      <th><FormattedMessage id="ATTRIBUTE.TYPE" /></th>
-                      <th><FormattedMessage id="ATTRIBUTE.VALUE" /></th>
-                      <th><FormattedMessage id="LABEL.ACTION" /></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      attributes.map((value, index) => (
-                        <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td>
-                          <td style={style.rowTable}>{value.name}</td>
-                          <td style={style.rowTable}>{value.type}</td>
-                          <td style={style.rowTable}>{value.value.join(", ")}</td>
-                          <td>
-                            <Button onClick={() => { editAttribute(value) }} color="primary" variant="contained" className={classes.button}>
-                              Edit
-                            </Button>
-                            <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                    {attributes.length === 0 && (
-                      <tr>
-                        <td colSpan="6">Data is empty</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <DataTable
+                  noHeader
+                  columns={columns}
+                  data={filteredItems}
+                  pagination
+                  paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                  subHeader
+                  subHeaderComponent={subHeaderComponentMemo}
+                  persistTableHead
+                />
               </PortletBody>
             </Portlet>
             <Dialog
