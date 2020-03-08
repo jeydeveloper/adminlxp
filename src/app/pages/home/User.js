@@ -111,9 +111,9 @@ function User() {
   const [filterText, setFilterText] = useState('');
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const filteredItems = users.filter(item =>
-    (item.fullname && item.fullname.includes(filterText)) || 
-    (item.username && item.username.includes(filterText)) || 
-    (item.email && item.email.includes(filterText))
+    (item.fullname && item.fullname.toLowerCase().includes(filterText.toLowerCase())) || 
+    (item.username && item.username.toLowerCase().includes(filterText.toLowerCase())) || 
+    (item.email && item.email.toLowerCase().includes(filterText.toLowerCase()))
   );
 
   const subHeaderComponentMemo = useMemo(() => {
