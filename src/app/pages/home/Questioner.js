@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Table } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
 import {
     Portlet,
     PortletBody,
@@ -25,6 +24,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -43,6 +43,12 @@ const style = {
         marginBottom: "8px"
     }
 };
+
+const FilterComponent = ({ filterText, onFilter }) => (
+    <>
+        <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+    </>
+);
 
 function Questioner() {
     const classes = useStyles();
@@ -63,6 +69,24 @@ function Questioner() {
     const [listValue, setListValue] = useState([]);
     const [open, setOpen] = useState(false);
 
+    const [filterText, setFilterText] = useState('');
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+    const filteredItems = questions.filter(item =>
+        (item.question && item.question.toLowerCase().includes(filterText.toLowerCase())) ||
+        (item.question_type && item.question_type.toLowerCase().includes(filterText.toLowerCase()))
+    );
+
+    const subHeaderComponentMemo = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) {
+                setResetPaginationToggle(!resetPaginationToggle);
+                setFilterText('');
+            }
+        };
+
+        return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+    }, [filterText, resetPaginationToggle]);
+
     useEffect(() => {
         async function fetchData() {
             axios.get(`${REACT_APP_API_URL}/questioners`)
@@ -73,12 +97,12 @@ function Questioner() {
         fetchData();
     }, []);
 
-    const editQuestioner = (question) => {
+    const editQuestioner = useCallback((question) => {
         setValues({ ...values, ...question });
         setForm(true);
         setFormId(question._id);
         setListValue(question.options);
-    };
+    }, [values]);
 
     const deleteQuestioner = () => {
         let question = values;
@@ -150,10 +174,31 @@ function Questioner() {
         setOpen(false);
     }
 
-    const handleClickOpen = (question) => {
+    const handleClickOpen = useCallback((question) => {
         setValues({ ...values, ...question });
         setOpen(true);
-    }
+    }, [values]);
+
+    const columns = useMemo(() => [
+        {
+            name: <FormattedMessage id="QUESTIONER.QUESTION" />,
+            selector: 'question',
+            sortable: true,
+            width: '30%'
+        },
+        {
+            name: <FormattedMessage id="QUESTIONER.QUESTIONTYPE" />,
+            selector: 'question_type',
+            sortable: true,
+            width: '20%'
+        },
+        {
+            name: <FormattedMessage id="LABEL.ACTION" />,
+            button: true,
+            cell: row => <Fragment><Button onClick={() => { editQuestioner(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button><Button onClick={() => { handleClickOpen(row) }} variant="contained" className={classes.button}>Delete</Button></Fragment>,
+            width: '30%'
+        },
+    ], [editQuestioner, handleClickOpen, classes.button]);
 
     return (
         <>
@@ -266,40 +311,16 @@ function Questioner() {
                                 }
                             />
                             <PortletBody fluid={true}>
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th><FormattedMessage id="QUESTIONER.QUESTION" /></th>
-                                            <th><FormattedMessage id="QUESTIONER.QUESTIONTYPE" /></th>
-                                            <th><FormattedMessage id="LABEL.ACTION" /></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            questions.map((value, index) => (
-                                                <tr key={index}>
-                                                    <td style={style.rowTable}>{(index + 1)}</td>
-                                                    <td style={style.rowTable}>{value.question}</td>
-                                                    <td style={style.rowTable}>{value.question_type}</td>
-                                                    <td>
-                                                        <Button onClick={() => { editQuestioner(value) }} color="primary" variant="contained" className={classes.button}>
-                                                            Edit
-                            </Button>
-                                                        <Button onClick={() => { handleClickOpen(value) }} variant="contained" className={classes.button}>
-                                                            Delete
-                            </Button>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        }
-                                        {questions.length === 0 && (
-                                            <tr>
-                                                <td colSpan="6">Data is empty</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </Table>
+                                <DataTable
+                                    noHeader
+                                    columns={columns}
+                                    data={filteredItems}
+                                    pagination
+                                    paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                                    subHeader
+                                    subHeaderComponent={subHeaderComponentMemo}
+                                    persistTableHead
+                                />
                             </PortletBody>
                         </Portlet>
                         <Dialog

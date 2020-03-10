@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Image, Table } from "react-bootstrap";
+import React, { useState, useEffect, Fragment, useMemo, useCallback } from "react";
+import { Image } from "react-bootstrap";
 import {
   Portlet,
   PortletBody,
@@ -16,6 +16,7 @@ import { Alert } from "react-bootstrap";
 import axios from "axios";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import DataTable from "react-data-table-component";
 
 const { REACT_APP_API_URL, REACT_APP_API_UPLOAD_FOLDER } = process.env;
 
@@ -34,6 +35,12 @@ const style = {
     marginBottom: "8px"
   }
 };
+
+const FilterComponent = ({ filterText, onFilter }) => (
+  <>
+    <TextField id="search" type="text" placeholder="Filter By Name" value={filterText} onChange={onFilter} />
+  </>
+);
 
 function Setting() {
   const classes = useStyles();
@@ -54,6 +61,23 @@ function Setting() {
   const [images, setImages] = useState(null);
   const [message, setMessage] = useState(null);
 
+  const [filterText, setFilterText] = useState('');
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const filteredItems = settings.filter(item =>
+    (item.title && item.title.toLowerCase().includes(filterText.toLowerCase()))
+  );
+
+  const subHeaderComponentMemo = useMemo(() => {
+    const handleClear = () => {
+      if (filterText) {
+        setResetPaginationToggle(!resetPaginationToggle);
+        setFilterText('');
+      }
+    };
+
+    return <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} />;
+  }, [filterText, resetPaginationToggle]);
+
   useEffect(() => {
     async function fetchData() {
       axios.get(`${REACT_APP_API_URL}/settings`)
@@ -65,11 +89,11 @@ function Setting() {
     fetchData();
   }, []);
 
-  const editSetting = (setting) => {
+  const editSetting = useCallback((setting) => {
     setValues({ ...values, ...setting });
     setForm(true);
     setFormId(setting._id);
-  };
+  }, [values]);
 
   const checkMimeType = (event) => {
     let files = event.target.files;
@@ -199,6 +223,27 @@ function Setting() {
     setImages(null);
   };
 
+  const columns = useMemo(() => [
+    {
+      name: <FormattedMessage id="SETTING.NAME" />,
+      selector: 'title',
+      sortable: true,
+      width: '30%'
+    },
+    {
+      name: <FormattedMessage id="SETTING.IMAGE" />,
+      selector: 'image',
+      cell: row => row.image ? <Image style={{ "width": "100px" }} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${row.image}`} thumbnail /> : '',
+      width: '10%'
+    },
+    {
+      name: <FormattedMessage id="LABEL.ACTION" />,
+      button: true,
+      cell: row => <Fragment><Button onClick={() => { editSetting(row) }} color="primary" variant="contained" className={classes.button}>Edit</Button></Fragment>,
+      width: '30%'
+    },
+  ], [editSetting, classes.button]);
+
   return (
     <>
       {form &&
@@ -284,46 +329,25 @@ function Setting() {
         <div className="row">
           <div className="col-md-12">
             <Portlet>
-                <PortletHeader
-                    title="List Setting"
-                    toolbar={settings.length === 0 && 
-                    <Button onClick={addSetting} color="primary" variant="contained" className={classes.button}>
-                        Add Setting
+              <PortletHeader
+                title="List Setting"
+                toolbar={settings.length === 0 &&
+                  <Button onClick={addSetting} color="primary" variant="contained" className={classes.button}>
+                    Add Setting
                     </Button>
-                    }
-                />
+                }
+              />
               <PortletBody fluid={true}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th><FormattedMessage id="SETTING.NAME" /></th>
-                      <th><FormattedMessage id="SETTING.IMAGE" /></th>
-                      <th><FormattedMessage id="LABEL.ACTION" /></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      settings.map((value, index) => (
-                        <tr key={index}>
-                          <td style={style.rowTable}>{(index + 1)}</td> 
-                          <td style={style.rowTable}>{value.title}</td>
-                      <td style={style.rowTable}>{value.image && <Image style={{"width":"100px"}} src={`${REACT_APP_API_URL}/${REACT_APP_API_UPLOAD_FOLDER}/${value.image}`} thumbnail />}</td>
-                          <td>
-                            <Button onClick={() => {editSetting(value)}} color="primary" variant="contained" className={classes.button}>
-                              Edit
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                    {settings.length === 0 && (
-                      <tr>
-                        <td colSpan="4">Data is empty</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <DataTable
+                  noHeader
+                  columns={columns}
+                  data={filteredItems}
+                  pagination
+                  paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                  subHeader
+                  subHeaderComponent={subHeaderComponentMemo}
+                  persistTableHead
+                />
               </PortletBody>
             </Portlet>
           </div>
